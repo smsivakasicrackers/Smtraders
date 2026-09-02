@@ -2,8 +2,10 @@ import React from "react";
 import { FaStar, FaGift } from "react-icons/fa";
 import { BsSunFill } from "react-icons/bs";
 import { LuSparkles } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 
 const Exploremenu = () => {
+  const navigate = useNavigate();
   const menuItems = [
     {
       name: "Night Shots",
@@ -49,6 +51,7 @@ const Exploremenu = () => {
           {menuItems.map((item, index) => (
             <div
               key={index}
+              onClick={() => navigate(`/search/${item.name}`)}
               className={`${item.color} rounded-2xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer`}
             >
               <div
