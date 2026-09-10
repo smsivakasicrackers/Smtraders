@@ -8,11 +8,11 @@ import { ShieldAlert } from "lucide-react";
 export default function LegalNotice({ className = "" }) {
   return (
     <div
-      className={`rounded-card border border-gold-500/30 bg-ink-950 px-5 py-5 sm:px-8 sm:py-6 ${className}`}
+      className={`rounded-card border border-crimson-400/30 bg-gradient-to-br from-crimson-700 to-crimson-900 px-5 py-5 shadow-card sm:px-8 sm:py-6 ${className}`}
     >
       <div className="mx-auto flex max-w-4xl items-start gap-3 sm:gap-4">
-        <ShieldAlert className="mt-0.5 h-6 w-6 shrink-0 text-gold-400" aria-hidden="true" />
-        <p className="text-sm leading-relaxed text-ink-200 sm:text-[15px]">
+        <ShieldAlert className="mt-0.5 h-6 w-6 shrink-0 text-gold-300" aria-hidden="true" />
+        <p className="text-sm leading-relaxed text-crimson-50 sm:text-[15px]">
           <strong className="text-gold-300">As per 2018 Supreme Court Order,</strong> Online Sale
           of Firecrackers are NOT permitted. We value our customers and at the same time, we
           respect the jurisdiction. We request our customers to select your products in the
