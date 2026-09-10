@@ -18,7 +18,7 @@ export const getProducts = (keyword,category,currentPage,id,name,description,ima
         dispatch(productsSucess(data))
     }catch(error){
 //handle error
-dispatch(productsFail(error.response.data.message))
+        dispatch(productsFail(error.response?.data?.message || "Failed to fetch products"))
     }
 }
 export const getProduct = id => async (dispatch) => {

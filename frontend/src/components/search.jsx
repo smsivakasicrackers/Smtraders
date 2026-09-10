@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Search as SearchIcon } from "lucide-react";
 
 export default function Search() {
@@ -9,14 +9,30 @@ export default function Search() {
 
   const searchHandler = (e) => {
     e.preventDefault();
-    if (keyword.trim()) navigate(`/search/${keyword}`);
+    if (keyword.trim()) {
+      navigate(`/products?keyword=${encodeURIComponent(keyword)}`);
+    } else {
+      navigate(`/products`);
+    }
   };
 
-  const clearKeyword = () => setKeyword("");
+  const handleKeywordChange = (e) => {
+    const val = e.target.value;
+    setKeyword(val);
+    if (val === "") {
+      navigate(`/products`);
+    }
+  };
 
   useEffect(() => {
-    if (location.pathname === "/search") clearKeyword();
-  }, [location]);
+    // If the user navigates directly to /products without a keyword or clears it
+    const searchParams = new URLSearchParams(location.search);
+    if (!searchParams.get("keyword")) {
+      setKeyword("");
+    } else {
+      setKeyword(searchParams.get("keyword"));
+    }
+  }, [location.search]);
 
   return (
     <form
@@ -29,7 +45,7 @@ export default function Search() {
           type="text"
           placeholder="Search for crackers..."
           value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          onChange={handleKeywordChange}
           className="flex-grow px-5 py-2 text-gray-700 placeholder-gray-400 focus:outline-none text-sm md:text-base"
         />
 
@@ -41,18 +57,6 @@ export default function Search() {
           <SearchIcon size={18} />
         </button>
       </div>
-
-      {/* Browse Button (only visible in search pages) */}
-      {location.pathname.startsWith("/search") && (
-        <Link to="/search" className="ml-3">
-          <button
-            type="button"
-            className="px-4 py-2 text-sm md:text-base font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
-          >
-            Browse
-          </button>
-        </Link>
-      )}
     </form>
   );
 }

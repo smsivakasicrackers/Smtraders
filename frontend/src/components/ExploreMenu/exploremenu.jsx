@@ -8,25 +8,25 @@ const Exploremenu = () => {
   const navigate = useNavigate();
   const menuItems = [
     {
-      name: "Night Shots",
+      name: "Sparklers",
       color: "bg-orange-50",
       iconColor: "text-orange-500",
       icon: <FaStar className="text-3xl" />,
     },
     {
-      name: "Day Shots",
+      name: "Flower pot",
       color: "bg-blue-50",
       iconColor: "text-blue-500",
       icon: <BsSunFill className="text-3xl" />,
     },
     {
-      name: "Kids Crackers",
+      name: "Sky shot rider",
       color: "bg-green-50",
       iconColor: "text-green-500",
       icon: <LuSparkles className="text-3xl" />,
     },
     {
-      name: "Gift Boxes",
+      name: "Gift box",
       color: "bg-pink-50",
       iconColor: "text-pink-500",
       icon: <FaGift className="text-3xl" />,
@@ -51,7 +51,7 @@ const Exploremenu = () => {
           {menuItems.map((item, index) => (
             <div
               key={index}
-              onClick={() => navigate(`/search/${item.name}`)}
+              onClick={() => navigate(`/products?category=${encodeURIComponent(item.name)}`)}
               className={`${item.color} rounded-2xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer`}
             >
               <div

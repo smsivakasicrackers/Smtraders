@@ -84,7 +84,7 @@ export const loadUser = async (dispatch) => {
       const { data} = await axios.get(`${frontendUrl}/myprofile`,{withCredentials:true}); 
       dispatch(loadUserSuccess(data));
     } catch (error) {
-      dispatch(loadUserFail(error.response.data.message));
+      dispatch(loadUserFail(error.response?.data?.message || "Failed to load user"));
     }
   };
 

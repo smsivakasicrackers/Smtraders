@@ -8,7 +8,7 @@ import React, {
   Suspense,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { getProducts } from "../../actions/productActions";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -37,8 +37,13 @@ const Cracker = () => {
     (state) => state.productsState
   );
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const keyword = searchParams.get("keyword") || null;
+  const categoryFromUrl = searchParams.get("category") || "";
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(categoryFromUrl);
 
   const categories = useMemo(
     () => [
@@ -71,15 +76,21 @@ const Cracker = () => {
   );
 
   useEffect(() => {
+    if (categoryFromUrl !== category) {
+      setCategory(categoryFromUrl);
+    }
+  }, [categoryFromUrl]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       if (error) {
         toast.error(error);
       } else {
-        dispatch(getProducts(null, category, currentPage));
+        dispatch(getProducts(keyword, category, currentPage));
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [dispatch, error, currentPage, category]);
+  }, [dispatch, error, currentPage, category, keyword]);
 
   const setCurrentPageNo = useCallback((pageNo) => {
     setCurrentPage(pageNo);
