@@ -35,24 +35,20 @@ export default function Search() {
   }, [location.search]);
 
   return (
-    <form
-      onSubmit={searchHandler}
-      className="w-full flex justify-center mt-6 mb-10 px-4"
-    >
-      <div className="flex items-center w-full max-w-lg bg-white border border-gray-300 rounded-full shadow-sm overflow-hidden transition-all focus-within:ring-2 focus-within:ring-indigo-500">
-        {/* Input Field */}
+    <form onSubmit={searchHandler} className="w-full flex justify-center px-4">
+      <div className="flex w-full max-w-lg items-center overflow-hidden rounded-pill border border-ink-200 bg-white shadow-soft transition-all focus-within:border-crimson-400 focus-within:ring-2 focus-within:ring-crimson-100">
         <input
           type="text"
           placeholder="Search for crackers..."
           value={keyword}
           onChange={handleKeywordChange}
-          className="flex-grow px-5 py-2 text-gray-700 placeholder-gray-400 focus:outline-none text-sm md:text-base"
+          className="flex-grow bg-transparent px-5 py-2.5 text-sm text-ink-800 placeholder-ink-400 focus:outline-none md:text-base"
         />
 
-        {/* Search Button */}
         <button
           type="submit"
-          className="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 transition-all"
+          aria-label="Search"
+          className="flex items-center justify-center bg-crimson-600 px-5 py-2.5 text-white transition-all hover:bg-crimson-700 active:bg-crimson-800"
         >
           <SearchIcon size={18} />
         </button>

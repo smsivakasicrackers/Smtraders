@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -18,8 +18,13 @@ export const validateShipping = (shippingInfo, navigate) => {
   }
 };
 
+const fieldClasses =
+  "w-full rounded-lg border border-ink-200 bg-white px-4 py-2.5 text-sm text-ink-800 outline-none transition focus:border-crimson-500 focus:ring-2 focus:ring-crimson-100";
+
+const labelClasses = "mb-1.5 block text-sm font-medium text-ink-700";
+
 export default function Shipping() {
-  const { shippingInfo = {} } = useSelector((state) => state.cartState);
+  const { shippingInfo = {}, items: cartItems } = useSelector((state) => state.cartState);
   const [address, setAddress] = useState(shippingInfo.address || "");
   const [city, setCity] = useState(shippingInfo.city || "");
   const [phoneNo, setPhoneNo] = useState(shippingInfo.phoneNo || "");
@@ -30,6 +35,13 @@ export default function Shipping() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate("/Mycart", { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(saveShippingInfo({ name, address, city, phoneNo, postalCode, state }));
@@ -38,21 +50,21 @@ export default function Shipping() {
 
   return (
     <Fragment>
-      <CheckoutSteps shipping />
+      <CheckoutSteps current={2} />
 
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-b from-indigo-50 to-white py-12 px-6">
-        <div className="w-full max-w-md bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 text-center mb-8">
+      <div className="section-container flex justify-center py-12 sm:py-16">
+        <div className="w-full max-w-md rounded-card border border-ink-100 bg-white p-6 shadow-card sm:p-8">
+          <h1 className="font-display text-2xl font-semibold text-ink-900 text-center sm:text-3xl">
             Shipping Information
           </h1>
+          <p className="mt-2 text-center text-sm text-ink-500">
+            Tell us where to send your order — we'll use this on your invoice.
+          </p>
 
-          <form onSubmit={submitHandler} className="space-y-5">
+          <form onSubmit={submitHandler} className="mt-8 space-y-5">
             {/* Name */}
             <div>
-              <label
-                htmlFor="name_field"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="name_field" className={labelClasses}>
                 Full Name
               </label>
               <input
@@ -61,16 +73,13 @@ export default function Shipping() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className={fieldClasses}
               />
             </div>
 
             {/* Address */}
             <div>
-              <label
-                htmlFor="address_field"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="address_field" className={labelClasses}>
                 Address
               </label>
               <input
@@ -79,16 +88,13 @@ export default function Shipping() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className={fieldClasses}
               />
             </div>
 
             {/* City */}
             <div>
-              <label
-                htmlFor="city_field"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="city_field" className={labelClasses}>
                 City
               </label>
               <input
@@ -97,16 +103,13 @@ export default function Shipping() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className={fieldClasses}
               />
             </div>
 
             {/* Phone */}
             <div>
-              <label
-                htmlFor="phone_field"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="phone_field" className={labelClasses}>
                 Phone Number
               </label>
               <input
@@ -115,16 +118,13 @@ export default function Shipping() {
                 value={phoneNo}
                 onChange={(e) => setPhoneNo(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className={fieldClasses}
               />
             </div>
 
             {/* Postal Code */}
             <div>
-              <label
-                htmlFor="postal_code_field"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="postal_code_field" className={labelClasses}>
                 Postal Code
               </label>
               <input
@@ -133,16 +133,13 @@ export default function Shipping() {
                 value={postalCode}
                 onChange={(e) => setPostalCode(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className={fieldClasses}
               />
             </div>
 
             {/* State */}
             <div>
-              <label
-                htmlFor="state_field"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="state_field" className={labelClasses}>
                 State
               </label>
               <select
@@ -150,7 +147,7 @@ export default function Shipping() {
                 value={state}
                 onChange={(e) => setState(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                className={`${fieldClasses} bg-white`}
               >
                 <option value="">Select State</option>
                 <option value="Tamil Nadu">Tamil Nadu</option>
@@ -162,10 +159,7 @@ export default function Shipping() {
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg transition-all duration-300 shadow-md"
-            >
+            <button type="submit" className="btn-primary w-full py-3 text-base">
               Continue
             </button>
           </form>

@@ -4,7 +4,31 @@ import { clearProductCreated, clearError } from "../../slices/productSlice";
 import { toast } from "react-toastify";
 import { Fragment, useEffect, useState } from "react";
 import { createNewProduct } from "../../actions/productActions";
+import { ImagePlus, Tag, Boxes, IndianRupee } from "lucide-react";
 import Sidebar from "./Sidebar";
+import { Button } from "../ui";
+import { CATEGORIES } from "../../constants/categories";
+
+const INPUT_CLASSES =
+  "w-full rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder-ink-400 transition focus:border-crimson-400 focus:outline-none focus:ring-2 focus:ring-crimson-100";
+const LABEL_CLASSES = "mb-1.5 block text-sm font-medium text-ink-700";
+
+function FormSection({ icon: Icon, title, description, children }) {
+  return (
+    <section className="space-y-5 p-6 md:p-8">
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-crimson-50 text-crimson-700">
+          <Icon className="h-5 w-5" aria-hidden="true" />
+        </div>
+        <div>
+          <h2 className="font-display text-lg font-semibold text-ink-900">{title}</h2>
+          {description && <p className="text-sm text-ink-500">{description}</p>}
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export default function NewProduct() {
   const [name, setName] = useState("");
@@ -19,33 +43,6 @@ export default function NewProduct() {
 
   const { loading, isProductCreated, error } =
     useSelector((state) => state.productState || {});
-
-  const categories = [
-    "Sound crackers",
-    "Twinkling star",
-    "Flower pot",
-    "Ground chakkara",
-    "Bijli crackers",
-    "Bomb",
-    "Rockets",
-    "Continue crackers",
-    "Special wala",
-    "Fancy show",
-    "Sky shot rider",
-    "Multi colour shot",
-    "Branded sky shot",
-    "Flying crackers",
-    "Standard fountain",
-    "Mega fountain",
-    "Flash novalties",
-    "Varities",
-    "Colour matches",
-    "Gift box",
-    "Sparklers",
-    "Peacock",
-    "Pencil",
-    "New Arrivals",
-  ];
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -99,171 +96,182 @@ export default function NewProduct() {
   }, [isProductCreated, error, dispatch, navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-full md:w-1/5 bg-white shadow-md border-r">
-        <Sidebar />
-      </div>
+    <div className="min-h-screen bg-paper-50">
+      <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 md:p-10 overflow-y-auto">
+      <main className="p-4 sm:p-6 md:ml-64 lg:p-10">
         <Fragment>
-          <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-10 border border-gray-200">
-            <h1 className="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">
+          <div className="mb-6">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-crimson-600">
+              Products
+            </span>
+            <h1 className="font-display text-2xl font-semibold text-ink-900">
               Create New Product
             </h1>
+            <p className="text-sm text-ink-500">Add a new item to your catalog.</p>
+          </div>
 
-            <form
-              onSubmit={submitHandler}
-              encType="multipart/form-data"
-              className="space-y-6"
+          <form
+            onSubmit={submitHandler}
+            encType="multipart/form-data"
+            className="mx-auto max-w-3xl divide-y divide-ink-100 rounded-card border border-ink-100 bg-white shadow-card"
+          >
+            {/* General Information */}
+            <FormSection
+              icon={Tag}
+              title="General Information"
+              description="Identify the product and place it in a category."
             >
-              {/* Name */}
               <div>
-                <label
-                  htmlFor="name_field"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Product Name
+                <label htmlFor="name_field" className={LABEL_CLASSES}>
+                  Product Name <span className="text-crimson-600">*</span>
                 </label>
                 <input
                   type="text"
                   id="name_field"
+                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className={INPUT_CLASSES}
+                  placeholder="e.g. Ground Chakkara 10pc"
                 />
               </div>
 
-              {/* Prices */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label
-                    htmlFor="price_field"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Discounted Price
-                  </label>
-                  <input
-                    type="text"
-                    id="price_field"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="originalPrice_field"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Original Price
-                  </label>
-                  <input
-                    type="text"
-                    id="originalPrice_field"
-                    value={originalPrice}
-                    onChange={(e) => setOriginalPrice(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                </div>
+              <div>
+                <label htmlFor="category_field" className={LABEL_CLASSES}>
+                  Category <span className="text-crimson-600">*</span>
+                </label>
+                <select
+                  id="category_field"
+                  required
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={INPUT_CLASSES}
+                >
+                  <option value="">Select a category</option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Description */}
               <div>
-                <label
-                  htmlFor="description_field"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="description_field" className={LABEL_CLASSES}>
                   Description
                 </label>
                 <textarea
                   id="description_field"
-                  rows="5"
+                  rows="4"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                  className={`${INPUT_CLASSES} resize-none`}
+                  placeholder="Short description shown on the product page"
                 ></textarea>
               </div>
+            </FormSection>
 
-              {/* Category & Stock */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Pricing */}
+            <FormSection
+              icon={IndianRupee}
+              title="Pricing"
+              description="Set the MRP and the discounted selling price."
+            >
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="category_field"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Category
-                  </label>
-                  <select
-                    id="category_field"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  >
-                    <option value="">Select</option>
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="stock_field"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Stock
+                  <label htmlFor="originalPrice_field" className={LABEL_CLASSES}>
+                    Original Price (MRP)
                   </label>
                   <input
                     type="number"
-                    id="stock_field"
-                    value={stock}
-                    onChange={(e) => setStock(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    min="0"
+                    step="0.01"
+                    id="originalPrice_field"
+                    value={originalPrice}
+                    onChange={(e) => setOriginalPrice(e.target.value)}
+                    className={INPUT_CLASSES}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="price_field" className={LABEL_CLASSES}>
+                    Discounted (Sale) Price <span className="text-crimson-600">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    id="price_field"
+                    required
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className={INPUT_CLASSES}
+                    placeholder="0.00"
                   />
                 </div>
               </div>
+            </FormSection>
 
-              {/* Images */}
+            {/* Media */}
+            <FormSection
+              icon={ImagePlus}
+              title="Media"
+              description="Upload one or more images for this product."
+            >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Images
-                </label>
                 <input
                   type="file"
                   id="customFile"
                   name="images"
                   multiple
                   onChange={onImagesChange}
-                  className="block w-full text-gray-700 border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="block w-full text-sm text-ink-700 file:mr-4 file:rounded-lg file:border-0 file:bg-crimson-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-crimson-700 hover:file:bg-crimson-100"
                 />
-                <div className="flex flex-wrap mt-3 gap-3">
-                  {imagesPreview.map((img, i) => (
-                    <img
-                      key={i}
-                      src={img}
-                      alt="Preview"
-                      className="w-16 h-16 object-cover rounded-md shadow-sm border border-gray-200"
-                    />
-                  ))}
-                </div>
+                {imagesPreview.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {imagesPreview.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt="Preview"
+                        className="h-16 w-16 rounded-md border border-ink-100 object-cover shadow-sm"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
+            </FormSection>
 
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition duration-200 shadow-md disabled:opacity-50"
-              >
+            {/* Inventory */}
+            <FormSection
+              icon={Boxes}
+              title="Inventory"
+              description="How many units are currently in stock."
+            >
+              <div>
+                <label htmlFor="stock_field" className={LABEL_CLASSES}>
+                  Stock Quantity
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  id="stock_field"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  className={INPUT_CLASSES}
+                />
+              </div>
+            </FormSection>
+
+            <div className="p-6 md:p-8">
+              <Button type="submit" variant="primary" loading={loading} className="w-full">
                 {loading ? "Creating..." : "Create Product"}
-              </button>
-            </form>
-          </div>
+              </Button>
+            </div>
+          </form>
         </Fragment>
-      </div>
+      </main>
     </div>
   );
 }

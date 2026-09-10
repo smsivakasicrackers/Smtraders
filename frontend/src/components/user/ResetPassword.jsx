@@ -1,85 +1,101 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import Footer from '../footer/Footer'
+import MetaData from '../../Pages/Home/MetaData'
 import { useDispatch, useSelector } from 'react-redux';
 import { clearAuthError, resetPassword } from '../../actions/userAction';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Lock } from 'lucide-react';
+import { Button } from '../ui';
 
 const ResetPassword = () => {
-const [password,setPassword] = useState("");
-const dispatch = useDispatch();
-const {isAuthenticated,error} = useSelector(state=>state.authState)
-const navigate = useNavigate();
-const { token } = useParams();
-const[confirmPassword,setConfirmPassword]=useState("");
-const submitHandler= (e)=>{
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const { isAuthenticated, error } = useSelector(state => state.authState)
+  const navigate = useNavigate();
+  const { token } = useParams();
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const submitHandler = (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('password',password)
-    formData.append('confirmPassword',confirmPassword)
-    dispatch(resetPassword(formData,token))
-}
+    formData.append('password', password)
+    formData.append('confirmPassword', confirmPassword)
+    dispatch(resetPassword(formData, token))
+  }
 
-useEffect(()=>{
-if(isAuthenticated){
-    toast('password reset success', {
-        type: 'success',   
-    })
-   navigate('/')
-return
-}
-if(error)  {
-    toast(error, {
+  useEffect(() => {
+    if (isAuthenticated) {
+      toast('password reset success', {
+        type: 'success',
+      })
+      navigate('/')
+      return
+    }
+    if (error) {
+      toast(error, {
         type: 'error',
-        onOpen: ()=> {dispatch(clearAuthError) }
-    })
-    return
-}
-},[isAuthenticated,error,dispatch,navigate])
-
-
+        onOpen: () => { dispatch(clearAuthError) }
+      })
+      return
+    }
+  }, [isAuthenticated, error, dispatch, navigate])
 
   return (
-    <div>
-    <div className="row wrapper py-4 ">
-            <div className="col-10 col-lg-5">
-                <form onSubmit={submitHandler} className="shadow-lg">
-                    <h1 className="mb-3">New Password</h1>
+    <Fragment>
+      <MetaData title={"Reset Password"} />
+      <div className="flex min-h-[calc(100vh-0px)] items-center justify-center bg-paper-50 px-4 py-16 sm:py-24">
+        <div className="w-full max-w-md">
+          <div className="card-surface p-6 sm:p-8">
+            <h1 className="font-display text-2xl font-semibold text-ink-900">
+              New Password
+            </h1>
+            <p className="mt-1 text-sm text-ink-600">
+              Choose a new password for your account.
+            </p>
 
-                    <div className="form-group">
-                        <label htmlFor="password_field">Password</label>
-                        <input
-                            type="password"
-                            id="password_field"
-                            className="form-control"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                        />
-                    </div>
+            <form onSubmit={submitHandler} className="mt-6 space-y-5">
+              <div>
+                <label htmlFor="password_field" className="mb-2 block text-sm font-medium text-ink-700">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+                  <input
+                    type="password"
+                    id="password_field"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-ink-200 bg-white py-3 pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-400 transition focus:border-crimson-400 focus:outline-none focus:ring-2 focus:ring-crimson-100"
+                  />
+                </div>
+              </div>
 
-                    <div className="form-group">
-                        <label htmlFor="confirm_password_field">Confirm Password</label>
-                        <input
-                            type="password"
-                            id="confirm_password_field"
-                            className="form-control"
-                            value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
-                        />
-                    </div>
+              <div>
+                <label htmlFor="confirm_password_field" className="mb-2 block text-sm font-medium text-ink-700">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" aria-hidden="true" />
+                  <input
+                    type="password"
+                    id="confirm_password_field"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-xl border border-ink-200 bg-white py-3 pl-11 pr-4 text-sm text-ink-900 placeholder:text-ink-400 transition focus:border-crimson-400 focus:outline-none focus:ring-2 focus:ring-crimson-100"
+                  />
+                </div>
+              </div>
 
-                    <button
-                        id="new_password_button"
-                        type="submit"
-                        className="btn btn-block py-3">
-                        Set Password
-                    </button>
-
-                </form>
-            </div>
+              <Button id="new_password_button" type="submit" variant="primary" size="lg" className="w-full">
+                Set Password
+              </Button>
+            </form>
+          </div>
         </div>
-        <Footer/>
-    </div>
+      </div>
+      <Footer />
+    </Fragment>
   )
 }
 

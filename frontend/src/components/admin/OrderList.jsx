@@ -6,9 +6,9 @@ import {
   clearOrderDeleted,
   clearOrderUpdated,
 } from "../../slices/orderSlice";
-import Loader from "../Loader";
 import { MDBDataTable } from "mdbreact";
-import { Button, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
+import { Eye, Download, Trash2, FileSpreadsheet, ClipboardList } from "lucide-react";
 import Sidebar from "./Sidebar";
 import {
   deleteOrder,
@@ -18,7 +18,19 @@ import {
 import html2pdf from "html2pdf.js";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { Button, Badge, EmptyState, TableRowSkeleton } from "../ui";
 import "./OrderList.css";
+
+const STATUS_TONE = {
+  Pending: "warning",
+  Processing: "gold",
+  Completed: "success",
+};
+
+const statusTone = (status) => STATUS_TONE[status] || "neutral";
+
+const SELECT_CLASSES =
+  "rounded-lg border border-ink-200 bg-white px-2 py-1.5 text-sm font-medium text-ink-800 focus:border-crimson-400 focus:outline-none focus:ring-2 focus:ring-crimson-100";
 
 const OrderList = () => {
   const {
@@ -57,7 +69,7 @@ const OrderList = () => {
       border-radius: 10px;
       border: 1px solid #ddd;
     ">
-      
+
       <!-- Header -->
       <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #007bff; padding-bottom: 15px;">
         <div>
@@ -70,7 +82,7 @@ const OrderList = () => {
           <p style="margin: 2px 0;">📞 +91 8903359989 / 6381933039 / 8248450298</p>
         </div>
       </div>
-  
+
       <!-- Invoice Info -->
       <div style="margin-top: 20px; display: flex; justify-content: space-between; font-size: 14px;">
         <div>
@@ -83,7 +95,7 @@ const OrderList = () => {
           <p><strong>Address:</strong> ${order.shippingInfo?.address || ""}, ${order.shippingInfo?.city || ""}, ${order.shippingInfo?.state || ""}</p>
         </div>
       </div>
-  
+
       <!-- Items Table -->
       <div style="page-break-inside: avoid; margin-top: 25px;">
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
@@ -113,12 +125,12 @@ const OrderList = () => {
           </tbody>
         </table>
       </div>
-  
+
       <!-- Total -->
       <div style="margin-top: 25px; text-align: right; page-break-inside: avoid;">
         <h3 style="margin: 0; color: #222;">Total Amount: ₹${order.totalPrice.toFixed(2)}</h3>
       </div>
-  
+
       <!-- Footer -->
       <div style="margin-top: 40px; text-align: center; border-top: 1px solid #ddd; padding-top: 10px; font-size: 13px; color: #777; page-break-inside: avoid;">
         <p>Thank you for shopping with <strong>SM CRACKERS</strong> 🎉</p>
@@ -126,28 +138,33 @@ const OrderList = () => {
       </div>
     </div>
     `;
-  
+
     const options = {
       margin: [20, 10, 20, 10], // Top, Right, Bottom, Left
       filename: `Invoice_${order._id}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
-      pagebreak: { 
+      pagebreak: {
         mode: ['avoid-all', 'css', 'legacy'],
         before: '#invoice-footer', // ensures the footer starts on a new page if cut off
       }
     };
-  
+
     html2pdf().set(options).from(invoiceHtml).save();
   };
-  
-  
-  
+
+
+
 
   const handleStatusChange = (orderId, newStatus) => {
     dispatch(updateOrder(orderId, { orderStatus: newStatus }));
   };
+
+  const sortedOrders = [...adminOrders].sort((a, b) => {
+    const orderPriority = { Processing: 1, Completed: 2, Delivered: 3 };
+    return (orderPriority[a.orderStatus] || 4) - (orderPriority[b.orderStatus] || 4);
+  });
 
   const setOrders = () => {
     const data = {
@@ -162,10 +179,6 @@ const OrderList = () => {
       ],
       rows: [],
     };
-    const sortedOrders = [...adminOrders].sort((a, b) => {
-      const orderPriority = { Processing: 1, Completed: 2, Delivered: 3 };
-      return (orderPriority[a.orderStatus] || 4) - (orderPriority[b.orderStatus] || 4);
-    });
     sortedOrders.forEach((order) => {
       data.rows.push({
         username: order.shippingInfo?.name || "N/A",
@@ -176,11 +189,7 @@ const OrderList = () => {
           <select
             value={order?.orderStatus || "Processing"}
             onChange={(e) => handleStatusChange(order._id, e.target.value)}
-            className={`px-2 py-1 border rounded text-sm ${
-              order?.orderStatus === "Completed"
-                ? "text-green-600 font-semibold"
-                : "text-gray-800"
-            }`}
+            className={SELECT_CLASSES}
           >
             <option value="Pending">Pending</option>
             <option value="Processing">Processing</option>
@@ -188,17 +197,19 @@ const OrderList = () => {
           </select>
         ),
         invoice: (
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex flex-col gap-2 md:flex-row">
             <Button
-              variant="info"
-              className="!bg-blue-500 !border-none hover:!bg-blue-600 text-white"
+              variant="secondary"
+              size="sm"
+              icon={Eye}
               onClick={() => handleShowInvoice(order)}
             >
               View
             </Button>
             <Button
-              variant="success"
-              className="!bg-green-500 !border-none hover:!bg-green-600 text-white"
+              variant="primary"
+              size="sm"
+              icon={Download}
               onClick={() => handleDownloadInvoice(order)}
             >
               Download
@@ -206,12 +217,14 @@ const OrderList = () => {
           </div>
         ),
         actions: (
-          <Button
+          <button
+            type="button"
             onClick={() => dispatch(deleteOrder(order._id))}
-            className="!bg-red-500 !border-none hover:!bg-red-600 text-white px-3 py-1 rounded"
+            className="inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-2 text-white shadow-soft transition hover:bg-red-700"
+            aria-label="Delete order"
           >
-            <i className="fa fa-trash"></i>
-          </Button>
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+          </button>
         ),
       });
     });
@@ -259,37 +272,112 @@ const OrderList = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      <div className="w-full md:w-64 bg-gray-900 text-white">
-        <Sidebar />
-      </div>
+    <div className="min-h-screen bg-paper-50">
+      <Sidebar />
 
-      <div className="flex-1 p-6 overflow-x-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">Order List</h1>
-          <button
-            onClick={handleDownloadAllOrders}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
-          >
+      <main className="p-4 sm:p-6 md:ml-64 lg:p-10">
+        {/* Toolbar */}
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-ink-900">Order List</h1>
+            <p className="text-sm text-ink-500">
+              {loading ? "Loading orders…" : `${adminOrders.length} enquir${adminOrders.length === 1 ? "y" : "ies"} received`}
+            </p>
+          </div>
+          <Button variant="gold" size="sm" icon={FileSpreadsheet} onClick={handleDownloadAllOrders}>
             Download All Orders (Excel)
-          </button>
+          </Button>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Loader />
+          <div className="card-surface overflow-hidden">
+            <table className="w-full">
+              <tbody>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <TableRowSkeleton key={i} columns={7} />
+                ))}
+              </tbody>
+            </table>
           </div>
+        ) : adminOrders.length === 0 ? (
+          <EmptyState
+            icon={ClipboardList}
+            title="No enquiries yet"
+            description="Orders placed by customers will show up here."
+          />
         ) : (
-          <div className="bg-white shadow rounded-lg p-4 overflow-x-auto">
-            <MDBDataTable
-              data={setOrders()}
-              bordered
-              striped
-              hover
-              responsive
-              className="text-sm"
-            />
-          </div>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <div className="card-surface overflow-hidden p-3 md:p-5">
+                <div className="overflow-x-auto">
+                  <MDBDataTable
+                    data={setOrders()}
+                    bordered
+                    striped
+                    hover
+                    responsive
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile card fallback */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+              {sortedOrders.map((order) => (
+                <div key={order._id} className="card-surface p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-ink-900">
+                        {order.shippingInfo?.name || "N/A"}
+                      </p>
+                      <p className="text-sm text-ink-500">{order.shippingInfo?.phoneNo || "N/A"}</p>
+                    </div>
+                    <Badge tone={statusTone(order.orderStatus)}>
+                      {order.orderStatus || "Processing"}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-sm text-ink-600">
+                    <span>{order?.orderItems?.length || 0} items</span>
+                    <span className="font-display text-base font-semibold text-ink-900">
+                      ₹{order?.totalPrice?.toFixed(2) || "0.00"}
+                    </span>
+                  </div>
+
+                  <div className="mt-3">
+                    <select
+                      value={order?.orderStatus || "Processing"}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                      className={`${SELECT_CLASSES} w-full`}
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Processing">Processing</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button variant="secondary" size="sm" icon={Eye} onClick={() => handleShowInvoice(order)}>
+                      View
+                    </Button>
+                    <Button variant="primary" size="sm" icon={Download} onClick={() => handleDownloadInvoice(order)}>
+                      Download
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      icon={Trash2}
+                      onClick={() => dispatch(deleteOrder(order._id))}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Invoice Modal */}
@@ -299,49 +387,50 @@ const OrderList = () => {
           </Modal.Header>
           <Modal.Body>
             {selectedOrder ? (
-              <div className="text-gray-700">
-                <h3 className="text-xl font-semibold mb-2">SM CRACKERS</h3>
-                <p className="text-sm mb-4">
+              <div className="text-ink-700">
+                <h3 className="mb-2 font-display text-xl font-semibold text-ink-900">SM CRACKERS</h3>
+                <p className="mb-4 text-sm">
                   4/175/A Sattur to Sivakasi road, Veerapandiyapuram<br />
                   Near toll gate, Sattur - 626203<br />
                   Phone: +91 8903359989 / 8248450298
                 </p>
-                <hr className="my-3" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                <hr className="my-3 border-ink-100" />
+                <div className="mb-4 grid grid-cols-1 gap-2 md:grid-cols-2">
                   <p><strong>Name:</strong> {selectedOrder.shippingInfo?.name}</p>
                   <p><strong>Phone:</strong> {selectedOrder.shippingInfo?.phoneNo}</p>
                   <p><strong>Address:</strong> {selectedOrder.shippingInfo?.address}</p>
                   <p><strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
                 </div>
-                <table className="w-full text-sm border border-gray-200">
-                  <thead className="bg-gray-100">
+                <table className="w-full border border-ink-200 text-sm">
+                  <thead className="bg-ink-50">
                     <tr>
-                      <th className="p-2 border">#</th>
-                      <th className="p-2 border">Product</th>
-                      <th className="p-2 border">Qty</th>
-                      <th className="p-2 border">Price</th>
-                      <th className="p-2 border">Total</th>
+                      <th className="border border-ink-200 p-2">#</th>
+                      <th className="border border-ink-200 p-2">Product</th>
+                      <th className="border border-ink-200 p-2">Qty</th>
+                      <th className="border border-ink-200 p-2">Price</th>
+                      <th className="border border-ink-200 p-2">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedOrder.orderItems.map((item, i) => (
-                      <tr key={i} className="border-t">
-                        <td className="p-2 border">{i + 1}</td>
-                        <td className="p-2 border">{item.name}</td>
-                        <td className="p-2 border">{item.quantity}</td>
-                        <td className="p-2 border">₹{item.price}</td>
-                        <td className="p-2 border">₹{item.price * item.quantity}</td>
+                      <tr key={i} className="border-t border-ink-100">
+                        <td className="border border-ink-200 p-2">{i + 1}</td>
+                        <td className="border border-ink-200 p-2">{item.name}</td>
+                        <td className="border border-ink-200 p-2">{item.quantity}</td>
+                        <td className="border border-ink-200 p-2">₹{item.price}</td>
+                        <td className="border border-ink-200 p-2">₹{item.price * item.quantity}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <div className="text-right mt-4 font-semibold text-lg">
+                <div className="mt-4 text-right font-display text-lg font-semibold text-ink-900">
                   Total: ₹{selectedOrder.totalPrice}
                 </div>
                 <Button
-                  variant="success"
+                  variant="primary"
+                  icon={Download}
                   onClick={() => handleDownloadInvoice(selectedOrder)}
-                  className="!bg-green-600 hover:!bg-green-700 text-white mt-3"
+                  className="mt-3"
                 >
                   Download Invoice
                 </Button>
@@ -351,16 +440,12 @@ const OrderList = () => {
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={handleCloseInvoice}
-              className="!bg-gray-500 hover:!bg-gray-600 text-white"
-            >
+            <Button variant="secondary" onClick={handleCloseInvoice}>
               Close
             </Button>
           </Modal.Footer>
         </Modal>
-      </div>
+      </main>
     </div>
   );
 };

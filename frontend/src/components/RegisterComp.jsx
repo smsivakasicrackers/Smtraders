@@ -2,11 +2,22 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../actions/userAction";
 import { useLocation } from "react-router-dom";
-import "./RegisterPopup.css";
+import { Modal, Button } from "./ui";
+
+const FIELD_CONFIG = [
+  { name: "name", label: "Full Name", type: "text" },
+  { name: "phone", label: "Phone Number", type: "tel" },
+  { name: "email", label: "Email", type: "email" },
+  { name: "address", label: "Address", type: "text" },
+];
+
+const inputClasses =
+  "w-full rounded-xl border border-ink-200 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder-ink-400 focus:border-crimson-400 focus:outline-none focus:ring-2 focus:ring-crimson-100";
 
 const RegisterComp = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -16,19 +27,22 @@ const RegisterComp = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { isAuthenticated, user } = useSelector((state) => state.authState); // ✅ Same as Navbar
+  const { isAuthenticated } = useSelector((state) => state.authState);
 
   useEffect(() => {
-    if (!location.pathname.includes("/admin") && !isAuthenticated) {
-      const interval = setInterval(() => {
-        if (!isRegistered) {
-          setShowPopup(true);
-        }
+    const alreadyShown = sessionStorage.getItem("leadPopupShown");
+    if (!location.pathname.includes("/admin") && !isAuthenticated && !isRegistered && !alreadyShown) {
+      // Show once per session, not on a repeating interval — a popup that
+      // nags every 10s on every page feels unprofessional, not premium.
+      const timeout = setTimeout(() => {
+        setShowPopup(true);
+        sessionStorage.setItem("leadPopupShown", "1");
       }, 10000);
 
-      return () => clearInterval(interval);
+      return () => clearTimeout(timeout);
     }
-  }, [isRegistered, location.pathname, isAuthenticated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, isAuthenticated]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -36,8 +50,10 @@ const RegisterComp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmitting(true);
     dispatch(register(formData));
     setIsRegistered(true);
+    setSubmitting(false);
     setShowPopup(false);
   };
 
@@ -45,64 +61,39 @@ const RegisterComp = () => {
     setShowPopup(false);
   };
 
-  // ✅ Don’t render anything if logged in
   if (isAuthenticated) return null;
 
   return (
-    showPopup && (
-      <div className="popup-overlay">
-        <div className="popup-content">
-          <button className="close-button" onClick={handleClose}>
-            &times;
-          </button>
-          <h2>Submit Your Data, our team will contact you shortly</h2>
-          <form onSubmit={handleSubmit}>
-            <div>
-              <label>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Phone:</label>
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <label>Address:</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-              />
-            </div>
+    <Modal
+      open={showPopup}
+      onClose={handleClose}
+      title="Let's stay in touch"
+    >
+      <p className="mb-5 text-sm text-ink-500">
+        Share your details and our team will reach out to help with your order.
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {FIELD_CONFIG.map((field) => (
+          <div key={field.name}>
+            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-500">
+              {field.label}
+            </label>
+            <input
+              type={field.type}
+              name={field.name}
+              value={formData[field.name]}
+              onChange={handleChange}
+              required
+              className={inputClasses}
+            />
+          </div>
+        ))}
 
-            <button type="submit">Submit</button>
-          </form>
-        </div>
-      </div>
-    )
+        <Button type="submit" variant="primary" loading={submitting} className="w-full">
+          Submit
+        </Button>
+      </form>
+    </Modal>
   );
 };
 

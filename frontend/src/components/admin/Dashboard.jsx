@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getAdminProducts } from "../../actions/productActions";
 import { getUsers } from "../../actions/userAction";
+import { Wallet, Package, ShoppingBag, Users, AlertTriangle } from "lucide-react";
+import { StatCard } from "../ui";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
@@ -35,71 +37,88 @@ export default function Dashboard() {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-full md:w-1/5 bg-white border-r shadow-md">
-        <Sidebar />
-      </div>
+    <div className="min-h-screen bg-paper-50">
+      <Sidebar />
 
-      {/* Dashboard Content */}
-      <div className="w-full md:w-4/5 p-6 md:p-10">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-8 text-center md:text-left">
-          Dashboard
-        </h1>
-
-        {/* Total Amount */}
-        <div className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-2xl shadow-md p-6 mb-8 text-center">
-          <h2 className="text-lg font-medium tracking-wide">Total Amount</h2>
-          <p className="text-3xl font-bold mt-2">₹{totalAmount.toFixed(2)}</p>
+      <main className="p-4 sm:p-6 md:ml-64 lg:p-10">
+        {/* Welcome header */}
+        <div className="mb-8 flex flex-col gap-1">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-crimson-600">
+            Admin Panel
+          </span>
+          <h1 className="font-display text-3xl font-semibold text-ink-900">
+            Welcome back 👋
+          </h1>
+          <p className="text-sm text-ink-500">
+            Here&apos;s a snapshot of how SM Crackers is performing today.
+          </p>
         </div>
 
-        {/* Cards Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Products */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl shadow-md p-6 hover:scale-105 transition-transform">
-            <h3 className="text-lg font-semibold text-center mb-2">Products</h3>
-            <p className="text-3xl font-bold text-center">{products.length}</p>
-            <Link
-              to="/admin/products"
-              className="block mt-4 text-center text-sm underline hover:text-green-100"
-            >
-              View Details →
-            </Link>
-          </div>
+        {/* KPI Row */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <StatCard
+            icon={Wallet}
+            label="Total Revenue"
+            value={`₹${totalAmount.toFixed(2)}`}
+            tone="crimson"
+          />
 
-          {/* Orders */}
-          <div className="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-2xl shadow-md p-6 hover:scale-105 transition-transform">
-            <h3 className="text-lg font-semibold text-center mb-2">Orders</h3>
-            <p className="text-3xl font-bold text-center">{adminOrders.length}</p>
-            <Link
-              to="/admin/orders"
-              className="block mt-4 text-center text-sm underline hover:text-red-100"
-            >
-              View Details →
-            </Link>
-          </div>
+          <Link to="/admin/products" className="block">
+            <StatCard icon={Package} label="Products" value={products.length} tone="emerald" />
+          </Link>
 
-          {/* Users */}
-          <div className="bg-gradient-to-br from-sky-500 to-sky-600 text-white rounded-2xl shadow-md p-6 hover:scale-105 transition-transform">
-            <h3 className="text-lg font-semibold text-center mb-2">Users</h3>
-            <p className="text-3xl font-bold text-center">{users.length}</p>
-            <Link
-              to="/admin/users"
-              className="block mt-4 text-center text-sm underline hover:text-sky-100"
-            >
-              View Details →
-            </Link>
-          </div>
+          <Link to="/admin/orders" className="block">
+            <StatCard icon={ShoppingBag} label="Orders" value={adminOrders.length} tone="gold" />
+          </Link>
 
-          {/* Out of Stock */}
-          <div className="bg-gradient-to-br from-yellow-400 to-yellow-500 text-white rounded-2xl shadow-md p-6 hover:scale-105 transition-transform">
-            <h3 className="text-lg font-semibold text-center mb-2">
-              Out of Stock
-            </h3>
-            <p className="text-3xl font-bold text-center">{outOfStock}</p>
-          </div>
+          <Link to="/admin/users" className="block">
+            <StatCard icon={Users} label="Users" value={users.length} tone="ink" />
+          </Link>
+
+          <StatCard
+            icon={AlertTriangle}
+            label="Out of Stock"
+            value={outOfStock}
+            tone="amber"
+          />
         </div>
-      </div>
+
+        {/* Quick links */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Link
+            to="/admin/products"
+            className="card-surface flex items-center justify-between p-5 transition hover:-translate-y-0.5 hover:shadow-premium"
+          >
+            <div>
+              <p className="font-display text-lg font-semibold text-ink-900">Products</p>
+              <p className="text-sm text-ink-500">Manage your catalog</p>
+            </div>
+            <span className="text-sm font-semibold text-crimson-600">View →</span>
+          </Link>
+
+          <Link
+            to="/admin/orders"
+            className="card-surface flex items-center justify-between p-5 transition hover:-translate-y-0.5 hover:shadow-premium"
+          >
+            <div>
+              <p className="font-display text-lg font-semibold text-ink-900">Orders</p>
+              <p className="text-sm text-ink-500">Track and update enquiries</p>
+            </div>
+            <span className="text-sm font-semibold text-crimson-600">View →</span>
+          </Link>
+
+          <Link
+            to="/admin/users"
+            className="card-surface flex items-center justify-between p-5 transition hover:-translate-y-0.5 hover:shadow-premium"
+          >
+            <div>
+              <p className="font-display text-lg font-semibold text-ink-900">Users</p>
+              <p className="text-sm text-ink-500">See registered leads</p>
+            </div>
+            <span className="text-sm font-semibold text-crimson-600">View →</span>
+          </Link>
+        </div>
+      </main>
     </div>
   );
 }

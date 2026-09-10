@@ -1,13 +1,14 @@
-import React, { Fragment, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getProducts } from "../../actions/productActions";
 import Product from "../../Pages/products/Product";
+import { SectionHeading, Button, ProductGridSkeleton, ErrorState, EmptyState } from "../ui";
 
 const Crackerdisplay = () => {
   const dispatch = useDispatch();
-  const { products, error } = useSelector((state) => state.productsState);
+  const { products, error, loading } = useSelector((state) => state.productsState);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,48 +17,39 @@ const Crackerdisplay = () => {
   }, [dispatch, error]);
 
   return (
-    <section className="py-2 px-6 sm:px-10 bg-gradient-to-b from-white via-indigo-50/50 to-white">
+    <section className="section-container py-16 sm:py-20">
       {/* Heading */}
-      <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-semibold text-gray-800 tracking-tight">
-          Explore Our Crackers
-        </h2>
-        <div className="w-24 h-[3px] bg-indigo-600 mx-auto mt-2 rounded-full"></div>
-        <p className="text-gray-600 text-sm sm:text-base mt-4 max-w-xl mx-auto leading-relaxed">
-          Discover all types of crackers — from night fireworks to kids’ favorites — 
-          handpicked to make every celebration sparkle with joy.
-        </p>
-      </div>
+      <SectionHeading
+        eyebrow="Handpicked Selection"
+        title="Explore Our Crackers"
+        subtitle="Discover all types of crackers — from night fireworks to kids' favorites — handpicked to make every celebration sparkle with joy."
+        align="center"
+        className="mx-auto mb-12"
+      />
 
       {/* Product Grid */}
-      <Fragment>
-        <div
-          className="grid gap-8 sm:gap-10 
-                     grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
-                     place-items-center max-w-7xl mx-auto"
-        >
-          {products &&
-            products.map((product) => (
-              <div
-                key={product._id}
-                className="transition-transform duration-300 hover:-translate-y-1"
-              >
-                <Product product={product} />
-              </div>
-            ))}
+      {loading ? (
+        <ProductGridSkeleton count={8} />
+      ) : error ? (
+        <ErrorState title="Couldn't load products" description={error} />
+      ) : !products || products.length === 0 ? (
+        <EmptyState
+          title="No products available"
+          description="Check back soon — new crackers are added regularly."
+        />
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-8">
+          {products.map((product) => (
+            <Product key={product._id} product={product} />
+          ))}
         </div>
-      </Fragment>
+      )}
 
       {/* View All Button */}
-      <div className="flex justify-center mt-14">
-        <button
-          onClick={() => navigate("/products")}
-          className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white 
-                     font-medium text-sm rounded-full shadow-md hover:shadow-lg 
-                     transition-all duration-300 hover:scale-105"
-        >
+      <div className="mt-14 flex justify-center">
+        <Button variant="primary" size="lg" onClick={() => navigate("/products")}>
           View All Crackers
-        </button>
+        </Button>
       </div>
     </section>
   );

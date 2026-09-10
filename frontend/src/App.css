@@ -1,11 +1,60 @@
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-*{
-  font-family: "Montserrat", sans-serif;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply font-sans text-ink-900 bg-paper-50 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+
+  ::selection {
+    @apply bg-crimson-200 text-crimson-900;
+  }
+
+  :focus-visible {
+    outline: 2px solid theme('colors.gold.500');
+    outline-offset: 2px;
+  }
 }
+
+@layer components {
+  /* Shared max-width wrapper so every section lines up consistently */
+  .section-container {
+    @apply mx-auto w-full max-w-content px-4 sm:px-6 lg:px-10;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-crimson-600 px-6 py-3
+      text-sm font-semibold text-white shadow-soft transition
+      hover:bg-crimson-700 active:bg-crimson-800
+      disabled:cursor-not-allowed disabled:bg-ink-200 disabled:text-ink-400;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink-200 bg-white px-6 py-3
+      text-sm font-semibold text-ink-800 transition
+      hover:border-crimson-300 hover:text-crimson-700
+      disabled:cursor-not-allowed disabled:text-ink-300;
+  }
+
+  .card-surface {
+    @apply rounded-card border border-ink-100 bg-white shadow-card;
+  }
+}
+
 @keyframes scroll-slow {
   0% {
     transform: translateX(0);
@@ -17,4 +66,19 @@
 
 .animate-scroll-slow {
   animation: scroll-slow 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -3,68 +3,76 @@ import { FaStar, FaGift } from "react-icons/fa";
 import { BsSunFill } from "react-icons/bs";
 import { LuSparkles } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
+import { SectionHeading } from "../ui";
 
 const Exploremenu = () => {
   const navigate = useNavigate();
   const menuItems = [
     {
       name: "Sparklers",
-      color: "bg-orange-50",
-      iconColor: "text-orange-500",
+      color: "bg-ember-50",
+      iconColor: "text-ember-600",
       icon: <FaStar className="text-3xl" />,
     },
     {
       name: "Flower pot",
-      color: "bg-blue-50",
-      iconColor: "text-blue-500",
+      color: "bg-gold-50",
+      iconColor: "text-gold-600",
       icon: <BsSunFill className="text-3xl" />,
     },
     {
       name: "Sky shot rider",
-      color: "bg-green-50",
-      iconColor: "text-green-500",
+      color: "bg-crimson-50",
+      iconColor: "text-crimson-600",
       icon: <LuSparkles className="text-3xl" />,
     },
     {
       name: "Gift box",
-      color: "bg-pink-50",
-      iconColor: "text-pink-500",
+      color: "bg-paper-200",
+      iconColor: "text-ink-700",
       icon: <FaGift className="text-3xl" />,
     },
   ];
 
-  return (
-    <section className="py-16 px-6 md:px-10 bg-white">
-      <div className="max-w-6xl mx-auto text-center">
-        {/* Heading */}
-        <h2 className="text-3xl md:text-4xl font-semibold text-gray-800">
-          Discover Our Sparkling Range
-        </h2>
-        <div className="w-24 h-[3px] bg-indigo-600 mx-auto mt-2 rounded-full"></div>
-        <p className="mt-3 text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
-          Explore our vibrant collection of Diwali Crackers, designed to light up
-          your celebrations with dazzling displays and festive joy!
-        </p>
+  const goToCategory = (name) => navigate(`/products?category=${encodeURIComponent(name)}`);
 
-        {/* Grid */}
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {menuItems.map((item, index) => (
+  return (
+    <section className="section-container py-16 sm:py-20">
+      {/* Heading */}
+      <SectionHeading
+        eyebrow="Shop by Category"
+        title="Discover Our Sparkling Range"
+        subtitle="Explore our vibrant collection of Diwali crackers, designed to light up your celebrations with dazzling displays and festive joy!"
+        align="center"
+        className="mx-auto mb-12"
+      />
+
+      {/* Grid */}
+      <div className="grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-4">
+        {menuItems.map((item) => (
+          <div
+            key={item.name}
+            role="button"
+            tabIndex={0}
+            onClick={() => goToCategory(item.name)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goToCategory(item.name);
+              }
+            }}
+            className={`${item.color} group flex cursor-pointer flex-col items-center justify-center rounded-card border border-ink-100/60 p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-premium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500 sm:p-8`}
+          >
             <div
-              key={index}
-              onClick={() => navigate(`/products?category=${encodeURIComponent(item.name)}`)}
-              className={`${item.color} rounded-2xl p-6 flex flex-col items-center justify-center shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer`}
+              className={`flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-soft transition-transform duration-300 group-hover:scale-110 ${item.iconColor}`}
             >
-              <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center bg-white shadow-sm ${item.iconColor}`}
-              >
-                {item.icon}
-              </div>
-              <p className="mt-4 text-gray-800 font-semibold text-base">
-                {item.name}
-              </p>
+              {item.icon}
             </div>
-          ))}
-        </div>
+            <p className="mt-4 text-center font-display text-base font-semibold text-ink-900 sm:text-lg">
+              {item.name}
+            </p>
+          </div>
+        ))}
       </div>
     </section>
   );

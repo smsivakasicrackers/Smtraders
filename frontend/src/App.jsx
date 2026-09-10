@@ -1,7 +1,7 @@
 
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
-import { BrowserRouter as Router,Route ,Routes} from 'react-router-dom';
+import { BrowserRouter as Router,Route ,Routes, useLocation} from 'react-router-dom';
 import Home from './Pages/Home/Home';
 // import Product from './Pages/products/Product'
 import {HelmetProvider} from 'react-helmet-async'
@@ -34,7 +34,60 @@ import Combo from './components/Combo';
 import RegisterComp from './components/RegisterComp';
 import UserList from './components/admin/UserList';
 import PriceList from './components/PriceList';
+import TrackOrder from './components/order/TrackOrder';
 
+// Admin pages own their entire shell (Sidebar + top bar) — the public
+// Navbar/Whatsapp widget/lead popup must not render there, or they visually
+// collide with the sidebar's own fixed-position header.
+function AppShell() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
+  return (
+    <div className="App">
+      <HelmetProvider>
+        {!isAdmin && <RegisterComp/>}
+        {!isAdmin && <Navbar/>}
+        {!isAdmin && <Whatsapp/>}
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          theme="light"
+          toastClassName="!rounded-xl !font-sans !shadow-premium"
+        />
+        <Routes>
+          <Route path='/search' element={<ProductSearch/>}/>
+          <Route path='/About' element={<About/>}/>
+          <Route path='/terms' element={<Termsandcondition/>}/>
+          <Route path ='/' element ={ <Home/>} />
+          <Route path='/Price' element={<PriceList/>}/>
+          <Route path='/combo' element={<Combo/>}/>
+          <Route path='/track-order' element={<TrackOrder/>}/>
+          <Route path='/search/:keyword' element={<ProductSearch/>}/>
+          <Route path='/products' element ={<Cracker/>}/>
+          <Route path='/contact' element = { <Contact/> }/>
+          <Route path='/admin/users' element={<ProtectedRoute isAdmin={true}><UserList/></ProtectedRoute>}/>
+          <Route path='/Login' element={<Login/>}/>
+          <Route path='/Register' element={<Register/>}/>
+          <Route path='/Forgotpassword' element={<ForgotPassword/>}/>
+          <Route path='/password/reset/:token' element={<ResetPassword/>}/>
+          <Route path = '/Mycart' element={<Cart/>}/>
+          <Route path='/payment' element={<Payment/>}/>
+          <Route path = '/shipping' element={<Shipping/>}/>
+          <Route path = '/order/confirm' element={<ConfirmOrder/>}/>
+          <Route path='/admin/orders' element={<ProtectedRoute isAdmin={true}><OrderList/></ProtectedRoute>}/>
+          <Route path='/admin/product/:id' element={ <ProtectedRoute isAdmin={true}><UpdateProduct/></ProtectedRoute> } />
+          <Route path ='/admin/dashboard' element={<ProtectedRoute isAdmin={true}><Dashboard/></ProtectedRoute>}/>
+          <Route path='/admin/products' element={ <ProtectedRoute isAdmin={true}><ProductList/></ProtectedRoute> } />
+          <Route path='/admin/products/create' element={ <ProtectedRoute isAdmin={true}><NewProduct/></ProtectedRoute> } />
+        </Routes>
+      </HelmetProvider>
+    </div>
+  );
+}
 
 function App() {
 useEffect(()=>{
@@ -43,41 +96,7 @@ useEffect(()=>{
 
   return (
     <Router>
-     <div className="App">
-      <HelmetProvider>
-        <RegisterComp/>
-      <Navbar/>
-      
-      <Whatsapp/>
-
-      <ToastContainer/>
-      <Routes>
-        <Route path='/search' element={<ProductSearch/>}/>
-        <Route path='/About' element={<About/>}/>
-        <Route path='/terms' element={<Termsandcondition/>}/>
-      <Route path ='/' element ={ <Home/>} />
-      <Route path='/Price' element={<PriceList/>}/>
-      <Route path='/combo' element={<Combo/>}/>
-      <Route path='/search/:keyword' element={<ProductSearch/>}/>
-      <Route path='/products' element ={<Cracker/>}/>
-      <Route path='/contact' element = { <Contact/> }/>
-      <Route path='/admin/users' element={<UserList/>}/>
-      <Route path='/Login' element={<Login/>}/>
-      <Route path='/Register' element={<Register/>}/>
-      <Route path='/Forgotpassword' element={<ForgotPassword/>}/>
-      <Route path='/password/reset/:token' element={<ResetPassword/>}/>
-      <Route path = '/Mycart' element={<Cart/>}/>
-      <Route path='/payment' element={<Payment/>}/>
-      <Route path = '/shipping' element={<Shipping/>}/>
-      <Route path = '/order/confirm' element={<ConfirmOrder/>}/>
-      <Route path='/admin/orders' element={<OrderList/>}/>
-      <Route path='/admin/product/:id' element={ <ProtectedRoute isAdmin={true}><UpdateProduct/></ProtectedRoute> } />
-        <Route path ='/admin/dashboard' element={<ProtectedRoute isAdmin={true}><Dashboard/></ProtectedRoute>}/>
-        <Route path='/admin/products' element={ <ProtectedRoute isAdmin={true}><ProductList/></ProtectedRoute> } />
-        <Route path='/admin/products/create' element={ <ProtectedRoute isAdmin={true}><NewProduct/></ProtectedRoute> } />
-       </Routes>
-      </HelmetProvider>
-       </div>
+      <AppShell/>
     </Router>
   );
 }

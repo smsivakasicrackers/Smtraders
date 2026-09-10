@@ -7,27 +7,22 @@ import MetaData from './MetaData'
 import Crackerdisplay from '../../components/cracker/Crackerdisplay'
 import Footer from '../../components/footer/Footer'
 
-import FloatingCard from '../../components/FloatingCard'
-import { Link } from 'react-router-dom'
-
-import Combo from '../../components/Combo'
+// Combo Packs temporarily hidden until the new combo lineup is ready.
+// import Combo from '../../components/Combo'
 import TestimonialSection from '../../components/TestimonialSection'
 
 
 const Home = () => {
   return (
- 
+
     <div>
-      <Link to='/Mycart'>
-      <FloatingCard/>
-      </Link>
       <FlashingOfferBox/>
    <MetaData title={`Buy Best Products`}/>
   <Header/>
 <Exploremenu/>
 
 <Crackerdisplay/>
-<Combo/>
+{/* <Combo/> temporarily hidden until the new combo lineup is ready */}
 <TestimonialSection/>
 {/* <About/> */}
 <Footer/>

@@ -1,13 +1,23 @@
-import { Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { MapPin, Phone, User } from "lucide-react";
 import CheckoutSteps from "./CheckoutSteps";
 import MetaData from "../../Pages/Home/MetaData";
+import { Button, Card } from "../ui";
 
 export default function ConfirmOrder() {
   const { shippingInfo, items: cartItems } = useSelector((state) => state.cartState);
-  const { user } = useSelector((state) => state.authState);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Nothing to review (empty cart, or a stale visit after an order was
+    // already completed) — send the customer back to build a list first.
+    if (cartItems.length === 0) {
+      navigate("/Mycart", { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const itemsPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const taxPrice = Number(0.05 * itemsPrice).toFixed(2);
@@ -22,52 +32,65 @@ export default function ConfirmOrder() {
   return (
     <Fragment>
       <MetaData title={"Confirm Order"} />
-      <CheckoutSteps shipping confirmOrder />
+      <CheckoutSteps current={3} />
 
-      <section className="min-h-screen bg-gradient-to-b from-white via-indigo-50/30 to-white py-10 px-4 sm:px-6 lg:px-12">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-10">
-          {/* Left Side - Shipping Info & Items */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8">
+      <section className="section-container py-10 sm:py-12">
+        <h1 className="font-display text-2xl font-semibold text-ink-900 sm:text-3xl">
+          Review Your Order
+        </h1>
+        <p className="mt-1 text-sm text-ink-500">
+          Double-check your details and items before generating your invoice.
+        </p>
+
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Left side - shipping info + items */}
+          <Card padding="lg" className="lg:col-span-2">
             {/* Shipping Info */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+              <h3 className="border-b border-ink-100 pb-2 font-display text-lg font-semibold text-ink-900">
                 Shipping Information
               </h3>
-              <p className="text-gray-700">
-                <span className="font-medium text-gray-800">Name:</span> {shippingInfo.name}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium text-gray-800">Phone:</span> {shippingInfo.phoneNo}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium text-gray-800">Address:</span>{" "}
-                {shippingInfo.address}, {shippingInfo.city}, {shippingInfo.postalCode},{" "}
-                {shippingInfo.state}
-              </p>
+              <div className="mt-4 space-y-2.5 text-sm text-ink-700">
+                <p className="flex items-start gap-2.5">
+                  <User className="mt-0.5 h-4 w-4 shrink-0 text-crimson-600" />
+                  <span>{shippingInfo.name}</span>
+                </p>
+                <p className="flex items-start gap-2.5">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-crimson-600" />
+                  <span>{shippingInfo.phoneNo}</span>
+                </p>
+                <p className="flex items-start gap-2.5">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-crimson-600" />
+                  <span>
+                    {shippingInfo.address}, {shippingInfo.city}, {shippingInfo.postalCode},{" "}
+                    {shippingInfo.state}
+                  </span>
+                </p>
+              </div>
             </div>
 
             {/* Cart Items */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
-                Your Cart Items
+              <h3 className="border-b border-ink-100 pb-2 font-display text-lg font-semibold text-ink-900">
+                Your Items
               </h3>
-              <div className="space-y-5">
+              <div className="mt-4 space-y-4">
                 {cartItems.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between gap-4 border-b border-gray-100 pb-3"
+                    className="flex items-center justify-between gap-4 border-b border-ink-50 pb-4 last:border-0 last:pb-0"
                   >
                     <div className="flex items-center gap-4">
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-16 h-16 object-contain rounded-md bg-gray-50 border"
+                        className="h-16 w-16 rounded-md border border-ink-100 bg-ink-50 object-contain"
                       />
-                      <h4 className="text-gray-800 font-medium capitalize">{item.name}</h4>
+                      <h4 className="font-medium capitalize text-ink-900">{item.name}</h4>
                     </div>
-                    <p className="text-gray-700 text-sm sm:text-base">
+                    <p className="text-sm text-ink-700 sm:text-base">
                       {item.quantity} × ₹{item.price}{" "}
-                      <span className="font-semibold text-gray-900 ml-1">
+                      <span className="ml-1 font-semibold text-ink-900">
                         = ₹{item.quantity * item.price}
                       </span>
                     </p>
@@ -75,36 +98,36 @@ export default function ConfirmOrder() {
                 ))}
               </div>
             </div>
-          </div>
+          </Card>
 
-          {/* Right Side - Summary */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 sm:p-8 h-fit">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b border-gray-200 pb-2">
+          {/* Right side - summary */}
+          <Card padding="lg" className="h-fit">
+            <h3 className="border-b border-ink-100 pb-2 font-display text-lg font-semibold text-ink-900">
               Order Summary
             </h3>
-            <div className="space-y-3 text-gray-700">
+            <div className="mt-4 space-y-3 text-sm text-ink-700">
               <p className="flex justify-between">
-                <span>Subtotal:</span>
-                <span className="font-medium text-gray-900">₹{itemsPrice}</span>
+                <span>Subtotal</span>
+                <span className="font-medium text-ink-900">₹{itemsPrice}</span>
               </p>
               <p className="flex justify-between">
-                <span>Tax (5%):</span>
-                <span className="font-medium text-gray-900">₹{taxPrice}</span>
+                <span>Tax (5%)</span>
+                <span className="font-medium text-ink-900">₹{taxPrice}</span>
               </p>
-              <hr className="my-3" />
-              <p className="flex justify-between text-lg font-semibold text-gray-900">
-                <span>Total:</span>
+              <hr className="my-1 border-ink-100" />
+              <p className="flex justify-between text-base font-semibold text-ink-900">
+                <span>Total</span>
                 <span>₹{totalPrice}</span>
               </p>
             </div>
 
-            <button
-              onClick={processPayment}
-              className="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-all duration-300 shadow-md"
-            >
+            <Button onClick={processPayment} className="mt-6 w-full" size="lg">
               Confirm Order
-            </button>
-          </div>
+            </Button>
+            <p className="mt-3 text-center text-xs text-ink-400">
+              This confirms your enquiry — payment is completed separately via GPay/UPI.
+            </p>
+          </Card>
         </div>
       </section>
     </Fragment>

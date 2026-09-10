@@ -1,4 +1,5 @@
 import React from "react";
+import { SectionHeading } from "./ui";
 
 const testimonials = [
   {
@@ -29,16 +30,16 @@ const testimonials = [
 
 const TestimonialSection = () => {
   return (
-    <section className="bg-gradient-to-b from-white via-indigo-50/40 to-white py-16 px-6 overflow-hidden">
-      <div className="max-w-7xl mx-auto text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 tracking-tight">
-          What Our Customers Say
-        </h2>
-        <div className="mt-3 h-[2px] w-20 bg-indigo-500 mx-auto rounded-full"></div>
-        <p className="text-gray-500 mt-4 max-w-2xl mx-auto text-sm md:text-base">
-          Here’s what our happy customers have to say about their experience
-          with SM Crackers.
-        </p>
+    <section className="overflow-hidden bg-ink-950 py-16 sm:py-20">
+      <div className="section-container">
+        <SectionHeading
+          eyebrow="Customer Love"
+          title="What Our Customers Say"
+          subtitle="Here's what our happy customers have to say about their experience with SM Crackers."
+          align="center"
+          light
+          className="mx-auto mb-12"
+        />
       </div>
 
       {/* Scrolling Container */}
@@ -47,12 +48,12 @@ const TestimonialSection = () => {
           {[...testimonials, ...testimonials].map((t, i) => (
             <div
               key={i}
-              className="flex-shrink-0 w-[280px] sm:w-[320px] md:w-[350px] bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all duration-300 hover:shadow-lg"
+              className="w-[280px] flex-shrink-0 rounded-card border border-white/10 bg-ink-900 p-6 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-glow sm:w-[320px] md:w-[350px]"
             >
-              <p className="text-gray-600 italic mb-4 text-sm md:text-base leading-relaxed">
-                “{t.text}”
+              <p className="mb-4 text-sm italic leading-relaxed text-ink-200 md:text-base">
+                &ldquo;{t.text}&rdquo;
               </p>
-              <h4 className="text-indigo-600 font-semibold text-base md:text-lg">
+              <h4 className="font-display text-base font-semibold text-gold-400 md:text-lg">
                 {t.name}
               </h4>
             </div>

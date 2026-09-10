@@ -7,7 +7,7 @@ export default function ProtectedRoute ({children, isAdmin}) {
     const { isAuthenticated, loading, user } = useSelector(state => state.authState)
 
     if(!isAuthenticated && !loading) {
-        return <Navigate to="/login" />
+        return <Navigate to="/Login" />
     }
 
     if(isAuthenticated) {

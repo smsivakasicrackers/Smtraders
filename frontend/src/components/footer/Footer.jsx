@@ -1,119 +1,127 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Phone, Mail, Heart } from "lucide-react";
+import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { BRAND } from "../../constants/brand";
+import LegalNotice from "../LegalNotice";
+
+const COLUMNS = [
+  {
+    heading: "Company",
+    links: [
+      { label: "Home", to: "/" },
+      { label: "About Us", to: "/About" },
+      // Combo Packs temporarily hidden until the new combo lineup is ready.
+      { label: "Terms & Conditions", to: "/terms" },
+    ],
+  },
+  {
+    heading: "Products",
+    links: [
+      { label: "All Fireworks", to: "/products" },
+      { label: "Price List", to: "/Price" },
+      { label: "Track Order", to: "/track-order" },
+    ],
+  },
+  {
+    heading: "Customer Help",
+    links: [
+      { label: "Contact Us", to: "/contact" },
+      { label: "My Cart", to: "/Mycart" },
+      { label: "Track Order", to: "/track-order" },
+    ],
+  },
+];
 
 const Footer = () => {
   const navigate = useNavigate();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 pt-10 pb-6 mt-12">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* --- Logo + Links --- */}
-        <div>
-          <div className="flex flex-col items-start space-y-4">
-            <img
-              src="../images/logo.png"
-              alt="SM Crackers logo"
-              loading="lazy"
-              className="h-14 w-auto cursor-pointer"
-              onClick={() => navigate("/")}
-            />
+    <footer className="bg-ink-950 text-ink-200">
+      <div className="section-container pt-10">
+        <LegalNotice />
+      </div>
 
-            <ul className="flex flex-wrap gap-3 text-sm font-medium">
-              <li
-                onClick={() => navigate("/")}
-                className="hover:text-indigo-400 cursor-pointer"
-              >
-                Home
-              </li>
-              <li>|</li>
-              <li
-                onClick={() => navigate("/products")}
-                className="hover:text-indigo-400 cursor-pointer"
-              >
-                Products
-              </li>
-              <li>|</li>
-              <li
-                onClick={() => navigate("/About")}
-                className="hover:text-indigo-400 cursor-pointer"
-              >
-                About Us
-              </li>
-              <li>|</li>
-              <li
-                onClick={() => navigate("/contact")}
-                className="hover:text-indigo-400 cursor-pointer"
-              >
-                Contact
-              </li>
-              <li>|</li>
-              <li
-                onClick={() => navigate("/terms")}
-                className="hover:text-indigo-400 cursor-pointer"
-              >
-                Terms
-              </li>
-            </ul>
-
-            <p className="text-sm text-gray-400">
-              © SM Crackers 2015 — All rights reserved
-            </p>
-          </div>
-        </div>
-
-        {/* --- Contact Info --- */}
-        <div>
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Contact Us
-          </h2>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-start gap-3">
-              <MapPin className="text-indigo-400 w-5 h-5 mt-1" />
-              <p>
-                4/175/A Sattur to Sivakasi Road
-                <br />
-                Veerapandiyapuram
-                <br />
-                Near Toll Gate, Sattur - 626203
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone className="text-indigo-400 w-5 h-5" />
-              <a href="tel:+918903359989" className="hover:text-indigo-400">
-                +91 89033 59989
-              </a>
-            </div>
-            <div className="flex items-center gap-3">
-              <Mail className="text-indigo-400 w-5 h-5" />
-              <a
-                href="mailto:smpyropark.2019@gmail.com"
-                className="hover:text-indigo-400"
-              >
-                smpyropark.2019@gmail.com
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* --- About --- */}
-        <div>
-          <h2 className="text-lg font-semibold text-white mb-4">
-            About the Company
-          </h2>
-          <p className="text-sm leading-relaxed text-gray-400">
-            At SM Crackers, customer satisfaction and safety are our top
-            priorities. Our online store lets you browse, choose, and order
-            crackers with ease, ensuring secure payments and reliable delivery.
+      <div className="section-container grid grid-cols-1 gap-10 py-16 sm:grid-cols-2 lg:grid-cols-5">
+        {/* Brand */}
+        <div className="sm:col-span-2 lg:col-span-2">
+          <img
+            src="../images/logo.png"
+            alt="SM Crackers logo"
+            loading="lazy"
+            className="h-12 w-auto cursor-pointer"
+            onClick={() => navigate("/")}
+          />
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-400">
+            Premium Sivakasi fireworks and festive collections, sourced with care. Browse
+            our range, build your list, and send an enquiry — our team takes it from there.
           </p>
+        </div>
+
+        {/* Link columns */}
+        {COLUMNS.map((col) => (
+          <div key={col.heading}>
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">
+              {col.heading}
+            </h3>
+            <ul className="space-y-2.5 text-sm">
+              {col.links.map((link) => (
+                <li key={link.label}>
+                  <button
+                    onClick={() => navigate(link.to)}
+                    className="text-ink-400 transition-colors hover:text-gold-300"
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        {/* Contact */}
+        <div>
+          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-white">
+            Contact
+          </h3>
+          <div className="space-y-3 text-sm text-ink-400">
+            <p className="flex items-start gap-2.5">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
+              <span>{BRAND.address.full}</span>
+            </p>
+            <a
+              href={`tel:+91${BRAND.phones.primary}`}
+              className="flex items-center gap-2.5 hover:text-gold-300"
+            >
+              <Phone className="h-4 w-4 shrink-0 text-gold-400" />
+              +91 {BRAND.phones.primary}
+            </a>
+            <a
+              href={`https://wa.me/${BRAND.whatsapp.chat}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 hover:text-gold-300"
+            >
+              <MessageCircle className="h-4 w-4 shrink-0 text-gold-400" />
+              WhatsApp Us
+            </a>
+            <a
+              href={`mailto:${BRAND.email}`}
+              className="flex items-center gap-2.5 hover:text-gold-300"
+            >
+              <Mail className="h-4 w-4 shrink-0 text-gold-400" />
+              {BRAND.email}
+            </a>
+          </div>
         </div>
       </div>
 
-      {/* --- Divider --- */}
-      <div className="border-t border-gray-700 mt-10 pt-4 text-center text-sm text-gray-400">
-        © {new Date().getFullYear()} SM Crackers, Sattur — Made with{" "}
-        <Heart className="inline w-4 h-4 text-red-500 mx-1 animate-pulse" /> by
-        <span className="text-indigo-400 font-medium"> Team SM</span>
+      <div className="border-t border-white/10">
+        <div className="section-container flex flex-col items-center justify-between gap-2 py-5 text-xs text-ink-500 sm:flex-row">
+          <p>
+            © {new Date().getFullYear()} {BRAND.name}, Sattur — All rights reserved.
+          </p>
+          <p>Crackers sold subject to standard safety precautions. Use responsibly.</p>
+        </div>
       </div>
     </footer>
   );
