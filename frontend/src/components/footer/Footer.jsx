@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Mail, MessageCircle, Instagram } from "lucide-react";
 import { BRAND } from "../../constants/brand";
 import LegalNotice from "../LegalNotice";
 
@@ -37,10 +37,6 @@ const Footer = () => {
 
   return (
     <footer className="bg-ink-950 text-ink-200">
-      <div className="section-container pt-10">
-        <LegalNotice />
-      </div>
-
       <div className="section-container grid grid-cols-1 gap-10 py-16 sm:grid-cols-2 lg:grid-cols-5">
         {/* Brand */}
         <div className="sm:col-span-2 lg:col-span-2">
@@ -111,7 +107,21 @@ const Footer = () => {
               <Mail className="h-4 w-4 shrink-0 text-gold-400" />
               {BRAND.email}
             </a>
+            <a
+              href="https://www.instagram.com/sm_crackers_sivakasi?stkn=NmVrNHU3c2llaGxw"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 hover:text-gold-300"
+            >
+              <Instagram className="h-4 w-4 shrink-0 text-gold-400" />
+              Instagram
+            </a>
           </div>
+        </div>
+
+        {/* Legal notice — fills the space beside Contact where the grid wraps */}
+        <div className="sm:col-span-2 lg:col-span-4">
+          <LegalNotice />
         </div>
       </div>
 

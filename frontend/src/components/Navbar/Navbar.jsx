@@ -87,7 +87,7 @@ const Navbar = () => {
           className="flex shrink-0 items-center gap-2"
           aria-label="SM Crackers home"
         >
-          <img src="../images/Logo-1.png" alt="SM Crackers logo" className="h-10 w-auto" />
+          <img src="../images/Logo-1.png" alt="SM Crackers logo" className="h-14 w-auto sm:h-16" />
         </button>
 
         {/* Desktop links */}
@@ -96,7 +96,7 @@ const Navbar = () => {
             <li
               key={link.to}
               onClick={() => go(link.to)}
-              className="cursor-pointer text-sm transition-colors hover:text-crimson-600"
+              className="cursor-pointer text-base transition-colors hover:text-crimson-600"
             >
               {link.label}
             </li>

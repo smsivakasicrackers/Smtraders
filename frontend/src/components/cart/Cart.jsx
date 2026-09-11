@@ -1,7 +1,8 @@
 import { Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, AlertCircle } from "lucide-react";
+import { toast } from "react-toastify";
 import {
   decreaseCartItemQty,
   increaseCartItemQty,
@@ -9,6 +10,8 @@ import {
 } from "../../slices/cartSlice";
 import { Button, Card, EmptyState } from "../ui";
 import CheckoutSteps from "./CheckoutSteps";
+
+const MIN_ORDER_AMOUNT = 3000;
 
 export default function Cart() {
   const { items } = useSelector((state) => state.cartState);
@@ -25,16 +28,23 @@ export default function Cart() {
     dispatch(decreaseCartItemQty(item.product));
   };
 
-  const checkoutHandler = () => {
-    navigate("/shipping");
-  };
-
   const totalAmount = items.reduce(
     (acc, item) => acc + item.quantity * item.price,
     0
   );
 
   const totalUnits = items.reduce((acc, item) => acc + item.quantity, 0);
+
+  const amountToMinimum = MIN_ORDER_AMOUNT - totalAmount;
+  const meetsMinimum = totalAmount >= MIN_ORDER_AMOUNT;
+
+  const checkoutHandler = () => {
+    if (!meetsMinimum) {
+      toast.error(`Minimum order amount is ₹${MIN_ORDER_AMOUNT}. Add ₹${amountToMinimum} more to continue.`);
+      return;
+    }
+    navigate("/shipping");
+  };
 
   return (
     <Fragment>
@@ -146,7 +156,22 @@ export default function Cart() {
 
                 <hr className="my-4 border-ink-100" />
 
-                <Button onClick={checkoutHandler} className="w-full" size="lg">
+                {!meetsMinimum && (
+                  <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-800">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      Minimum order is ₹{MIN_ORDER_AMOUNT}. Add ₹{amountToMinimum} more to
+                      proceed.
+                    </span>
+                  </div>
+                )}
+
+                <Button
+                  onClick={checkoutHandler}
+                  disabled={!meetsMinimum}
+                  className="w-full"
+                  size="lg"
+                >
                   Proceed to Shipping
                 </Button>
 

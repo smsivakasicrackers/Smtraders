@@ -1,25 +1,33 @@
 import { Fragment, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { MapPin, Phone, User } from "lucide-react";
 import CheckoutSteps from "./CheckoutSteps";
 import MetaData from "../../Pages/Home/MetaData";
 import { Button, Card } from "../ui";
 
+const MIN_ORDER_AMOUNT = 3000;
+
 export default function ConfirmOrder() {
   const { shippingInfo, items: cartItems } = useSelector((state) => state.cartState);
   const navigate = useNavigate();
+
+  const itemsPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   useEffect(() => {
     // Nothing to review (empty cart, or a stale visit after an order was
     // already completed) — send the customer back to build a list first.
     if (cartItems.length === 0) {
       navigate("/Mycart", { replace: true });
+      return;
+    }
+    if (itemsPrice < MIN_ORDER_AMOUNT) {
+      toast.error(`Minimum order amount is ₹${MIN_ORDER_AMOUNT}.`);
+      navigate("/Mycart", { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const itemsPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const taxPrice = Number(0.05 * itemsPrice).toFixed(2);
   const totalPrice = (Number(itemsPrice) + Number(taxPrice)).toFixed(2);
 

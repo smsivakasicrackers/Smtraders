@@ -1,12 +1,11 @@
-import React, { Fragment, useEffect, useState, useCallback, lazy, Suspense } from "react";
+import React, { Fragment, useEffect, useRef, useState, useCallback, lazy, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, Loader2 } from "lucide-react";
 import { getProducts } from "../../actions/productActions";
 import { clearError } from "../../slices/productsSlice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MetaData from "../../Pages/Home/MetaData";
-import Pagination from "react-js-pagination";
 import Product from "../../Pages/products/Product";
 import { CATEGORIES } from "../../constants/categories";
 import { Drawer, EmptyState, ErrorState, ProductGridSkeleton } from "../ui";
@@ -27,13 +26,18 @@ const Search = lazy(() => import("../search"));
  */
 const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
   const dispatch = useDispatch();
-  const { products, loading, error, productsCount, resPerPage } = useSelector(
+  const { products, loading, error, productsCount } = useSelector(
     (state) => state.productsState
   );
 
   const [currentPage, setCurrentPage] = useState(1);
   const [category, setCategory] = useState(categoryFromUrl);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  // Accumulated across pages for infinite scroll — the Redux slice only ever
+  // holds the most recently fetched page, so page 2+ results get appended
+  // here rather than replacing what's already on screen.
+  const [allProducts, setAllProducts] = useState([]);
+  const sentinelRef = useRef(null);
 
   // Keep local category state in sync when the URL-derived category changes
   // (e.g. navigating to /products?category=X, or a keyword-only search that
@@ -44,6 +48,12 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoryFromUrl]);
+
+  // A changed filter/search starts over from page 1 with a clean list.
+  useEffect(() => {
+    setCurrentPage(1);
+    setAllProducts([]);
+  }, [category, keyword]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,9 +66,32 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
     return () => clearTimeout(timer);
   }, [dispatch, error, currentPage, category, keyword]);
 
-  const setCurrentPageNo = useCallback((pageNo) => {
-    setCurrentPage(pageNo);
-  }, []);
+  // Append newly-fetched pages onto the running list; page 1 replaces it.
+  useEffect(() => {
+    if (!products) return;
+    setAllProducts((prev) => (currentPage === 1 ? products : [...prev, ...products]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products]);
+
+  const hasMore = allProducts.length < (productsCount || 0);
+
+  // Load the next page automatically as the sentinel scrolls into view.
+  useEffect(() => {
+    if (!hasMore || loading || error) return undefined;
+    const node = sentinelRef.current;
+    if (!node) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setCurrentPage((prev) => prev + 1);
+        }
+      },
+      { rootMargin: "600px" }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMore, loading, error, allProducts.length]);
 
   const selectCategory = useCallback((cat) => {
     setCategory(cat);
@@ -70,20 +103,23 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
     dispatch(clearError());
   }, [dispatch]);
 
-  const resultsLabel = loading
-    ? "Loading our full collection..."
-    : `${productsCount || 0} product${productsCount === 1 ? "" : "s"} to light up your celebration.`;
-
   return (
-    <div className="min-h-screen bg-paper-50">
+    <div className="relative min-h-screen overflow-hidden bg-ink-950">
       <MetaData title="All Fireworks" />
 
+      {/* Faint background emblem, fixed behind the whole page — decorative only */}
+      <img
+        src="/images/logo.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none fixed left-1/2 top-1/2 h-[320px] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.05] sm:h-[460px]"
+      />
+
       {/* Header */}
-      <section className="border-b border-ink-100 bg-white px-4 pb-10 pt-16 text-center sm:px-8 sm:pt-20">
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl md:text-6xl">
-          All <span className="text-crimson-600">Fireworks</span>
+      <section className="relative px-4 pb-10 pt-16 text-center sm:px-8 sm:pt-20">
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl md:text-6xl">
+          All <span className="text-crimson-400">Fireworks</span>
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-base text-ink-500 sm:text-lg">{resultsLabel}</p>
 
         <div className="mx-auto mt-8 max-w-lg">
           <Suspense fallback={<div className="text-sm text-ink-400">Loading search...</div>}>
@@ -92,12 +128,12 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
         </div>
       </section>
 
-      <div className="section-container py-8">
+      <div className="section-container relative py-8">
         {/* Category filter */}
         <div className="mb-8">
           {/* Desktop: pill buttons */}
           <div className="hidden md:block">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-500">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-300">
               Browse categories
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -139,7 +175,7 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
               <button
                 type="button"
                 onClick={() => setCategory("")}
-                className="flex shrink-0 items-center gap-1 text-sm font-medium text-ink-500 hover:text-crimson-600"
+                className="flex shrink-0 items-center gap-1 text-sm font-medium text-ink-300 hover:text-crimson-400"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
                 Clear
@@ -182,11 +218,11 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
         <Fragment>
           {error ? (
             <ErrorState title="Couldn't load products" description={error} onRetry={handleRetry} />
-          ) : loading ? (
+          ) : loading && currentPage === 1 ? (
             <ProductGridSkeleton count={8} />
-          ) : products && products.length > 0 ? (
+          ) : allProducts.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-              {products.map((product) => (
+              {allProducts.map((product) => (
                 <Product key={product._id} product={product} />
               ))}
             </div>
@@ -198,21 +234,15 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
           )}
         </Fragment>
 
-        {/* Pagination */}
-        {productsCount > resPerPage && (
-          <div className="mt-10 flex justify-center">
-            <Pagination
-              activePage={currentPage}
-              onChange={setCurrentPageNo}
-              totalItemsCount={productsCount}
-              itemsCountPerPage={resPerPage}
-              nextPageText="Next"
-              lastPageText="Last"
-              firstPageText="First"
-              itemClass="mx-1 overflow-hidden rounded-md border border-ink-200 text-ink-600 hover:bg-crimson-50"
-              linkClass="block px-3 py-1.5 text-sm font-medium"
-              activeClass="border-crimson-600 bg-crimson-600 text-white hover:bg-crimson-600"
-            />
+        {/* Infinite scroll — the sentinel triggers the next page as it
+            scrolls into view; no pagination controls needed. */}
+        {!error && allProducts.length > 0 && (
+          <div ref={sentinelRef} className="mt-10 flex justify-center py-6">
+            {loading && currentPage > 1 ? (
+              <Loader2 className="h-6 w-6 animate-spin text-crimson-500" aria-hidden="true" />
+            ) : !hasMore ? (
+              <p className="text-sm text-ink-400">You've reached the end of the collection.</p>
+            ) : null}
           </div>
         )}
       </div>
