@@ -155,6 +155,7 @@ export default function ProductList() {
                     bordered
                     striped
                     hover
+                    paging={false}
                     className="text-sm md:text-base"
                   />
                 </div>
