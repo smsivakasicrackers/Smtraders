@@ -112,7 +112,7 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
         src="/images/logo.png"
         alt=""
         aria-hidden="true"
-        className="pointer-events-none fixed left-1/2 top-1/2 h-[320px] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.05] sm:h-[460px]"
+        className="pointer-events-none fixed left-1/2 top-1/2 h-[500px] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.05] sm:h-[700px]"
       />
 
       {/* Header */}

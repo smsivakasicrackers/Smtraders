@@ -35,7 +35,7 @@ const Product = ({ product }) => {
   };
 
   return (
-    <div className="group flex h-full w-full flex-col rounded-card border border-ink-100 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-premium">
+    <div className="group flex h-full w-full flex-col rounded-card border border-ink-200 bg-ink-50 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-premium">
       {/* Product Image Section */}
       <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-t-card bg-gradient-to-br from-paper-100 via-paper-50 to-paper-200 p-2.5 sm:p-3">
         <img
