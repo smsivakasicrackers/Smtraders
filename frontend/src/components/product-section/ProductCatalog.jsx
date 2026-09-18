@@ -221,11 +221,33 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
           ) : loading && currentPage === 1 ? (
             <ProductGridSkeleton count={8} />
           ) : allProducts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-              {allProducts.map((product) => (
-                <Product key={product._id} product={product} />
-              ))}
-            </div>
+            category === "" ? (
+              <div className="flex flex-col gap-12 text-left">
+                {Object.entries(
+                  allProducts.reduce((acc, product) => {
+                    const cat = product.category || 'Other';
+                    if (!acc[cat]) acc[cat] = [];
+                    acc[cat].push(product);
+                    return acc;
+                  }, {})
+                ).map(([cat, prods]) => (
+                  <div key={cat}>
+                    <h3 className="mb-6 font-display text-2xl font-semibold tracking-tight text-white capitalize border-b border-ink-800 pb-2">{cat}</h3>
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+                      {prods.map((product) => (
+                        <Product key={product._id} product={product} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
+                {allProducts.map((product) => (
+                  <Product key={product._id} product={product} />
+                ))}
+              </div>
+            )
           ) : (
             <EmptyState
               title="No products found"
