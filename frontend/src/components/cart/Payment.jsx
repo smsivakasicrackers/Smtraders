@@ -94,13 +94,13 @@ const Payment = () => {
 
         // Create canvas with scaling
         const canvas = await html2canvas(invoiceElement, {
-          scale: 2,
+          scale: 1.5,
           useCORS: true,
           scrollX: 0,
           scrollY: -window.scrollY
         });
 
-        const imgData = canvas.toDataURL("image/png");
+        const imgData = canvas.toDataURL("image/jpeg", 0.7);
         const pdf = new jsPDF("p", "mm", "a4");
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -111,13 +111,13 @@ const Payment = () => {
         let heightLeft = imgHeight;
         let position = 0;
 
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, undefined, 'FAST');
         heightLeft -= pdfHeight;
 
         while (heightLeft > 0) {
           position -= pdfHeight;
           pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, undefined, 'FAST');
           heightLeft -= pdfHeight;
         }
 
@@ -220,9 +220,7 @@ const Payment = () => {
                     <p><strong className="text-ink-900">Discount:</strong> -₹{calculateDiscount().toFixed(2)}</p>
                     <p className="font-semibold text-crimson-700"><strong className="text-ink-900 font-semibold">Net Total:</strong> ₹{calculateNetTotal().toFixed(2)}</p>
                 </div>
-                <p className="mt-3 text-right text-sm italic text-red-600">
-                    Note: Extra 3% additional will be charged for packing.
-                </p>
+
 
                 {/* Footer */}
                 <div className="mt-10 border-t border-ink-200 pt-4 text-center text-xs text-ink-500">
