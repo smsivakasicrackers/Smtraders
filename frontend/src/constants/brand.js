@@ -7,10 +7,10 @@ export const BRAND = {
   legalName: "SM Sivakasi Crackers",
   foundedYear: 2015,
   address: {
-    line1: "4/175/A Sattur to Sivakasi Road",
-    line2: "Veerapandiyapuram",
-    line3: "Near Toll Gate, Sattur - 626203",
-    full: "4/175/A Sattur to Sivakasi Road, Veerapandiyapuram, Near Toll Gate, Sattur - 626203",
+    line1: "Sattur to Thayilpatti road, Unjampatti",
+    line2: "Near Jeyasri matches",
+    line3: "",
+    full: "Permanent: Sattur to Thayilpatti road, Unjampatti (Near Jeyasri matches) | Branch: Near RVCE college, Subbramaniyapuram",
   },
   email: "smpyropark.2019@gmail.com",
   phones: {

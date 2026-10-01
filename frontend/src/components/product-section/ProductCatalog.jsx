@@ -230,7 +230,14 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
                     acc[cat].push(product);
                     return acc;
                   }, {})
-                ).map(([cat, prods]) => (
+                ).sort(([catA], [catB]) => {
+                  const indexA = CATEGORIES.indexOf(catA);
+                  const indexB = CATEGORIES.indexOf(catB);
+                  if (indexA === -1 && indexB === -1) return catA.localeCompare(catB);
+                  if (indexA === -1) return 1;
+                  if (indexB === -1) return -1;
+                  return indexA - indexB;
+                }).map(([cat, prods]) => (
                   <div key={cat}>
                     <h3 className="mb-6 font-display text-2xl font-semibold tracking-tight text-white capitalize border-b border-ink-800 pb-2">{cat}</h3>
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
