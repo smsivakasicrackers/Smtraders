@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { getProducts } from "../../actions/productActions";
 import Product from "../../Pages/products/Product";
 import { SectionHeading, Button, ProductGridSkeleton, ErrorState, EmptyState } from "../ui";
+import { CATEGORIES } from "../../constants/categories";
 
 const Crackerdisplay = () => {
   const dispatch = useDispatch();
@@ -39,9 +40,19 @@ const Crackerdisplay = () => {
         />
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-8">
-          {products.map((product) => (
-            <Product key={product._id} product={product} />
-          ))}
+          {[...products]
+            .sort((a, b) => {
+              const indexA = CATEGORIES.indexOf(a.category);
+              const indexB = CATEGORIES.indexOf(b.category);
+              if (indexA === -1 && indexB === -1) return (a.category || '').localeCompare(b.category || '');
+              if (indexA === -1) return 1;
+              if (indexB === -1) return -1;
+              return indexA - indexB;
+            })
+            .slice(0, 12)
+            .map((product) => (
+              <Product key={product._id} product={product} />
+            ))}
         </div>
       )}
 
