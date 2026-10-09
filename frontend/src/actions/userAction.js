@@ -130,3 +130,19 @@ export const resetPassword = (formData, token) => async (dispatch) => {
     }
 
 }
+
+export const updateUser = (id, userData) => async (dispatch) => {
+    try {
+        dispatch({ type: 'user/updateUserRequest' })
+        const config = {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            withCredentials: true
+        }
+        const { data } = await axios.put(`${frontendUrl}/admin/user/${id}`, userData, config);
+        dispatch({ type: 'user/updateUserSuccess', payload: data })
+    } catch (error) {
+        dispatch({ type: 'user/updateUserFail', payload: error.response.data.message })
+    }
+}

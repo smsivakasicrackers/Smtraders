@@ -5,19 +5,25 @@ import { Users as UsersIcon, Phone, MapPin, FileDown } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Sidebar from "./Sidebar";
-import { getUsers } from "../../actions/userAction";
+import { getUsers, updateUser } from "../../actions/userAction";
+import { clearUserUpdated } from "../../slices/userSlice";
 import { EmptyState, TableRowSkeleton, Button } from "../ui";
 import { BRAND } from "../../constants/brand";
 
 export default function UserList() {
-  const { users = [], loading = true } = useSelector((state) => state.userState);
+  const { users = [], loading = true, isUserUpdated } = useSelector((state) => state.userState);
   const dispatch = useDispatch();
 
-  // Fetch on mount so /admin/users works directly, not only after visiting
-  // the Dashboard (which happened to dispatch the same getUsers action).
   useEffect(() => {
+    if (isUserUpdated) {
+        dispatch(clearUserUpdated());
+    }
     dispatch(getUsers);
-  }, [dispatch]);
+  }, [dispatch, isUserUpdated]);
+
+  const handleContactChange = (id, currentStatus) => {
+    dispatch(updateUser(id, { contacted: !currentStatus }));
+  };
 
   const downloadUsersPDF = () => {
     const doc = new jsPDF();
@@ -33,12 +39,13 @@ export default function UserList() {
 
     autoTable(doc, {
       startY: 36,
-      head: [["#", "Name", "Phone", "Address"]],
+      head: [["#", "Name", "Phone", "Address", "Contacted"]],
       body: users.map((user, index) => [
         index + 1,
         user.name || "-",
         user.phone || "-",
         user.address || "-",
+        user.contacted ? "Yes" : "No",
       ]),
       headStyles: { fillColor: [184, 31, 66] },
       styles: { fontSize: 9, cellPadding: 3 },
@@ -55,6 +62,7 @@ export default function UserList() {
         { label: "Name", field: "name", sort: "asc" },
         { label: "Phone", field: "Phone", sort: "asc" },
         { label: "Address", field: "Address", sort: "asc" },
+        { label: "Contacted", field: "contacted", sort: "asc" },
       ],
       rows: [],
     };
@@ -65,6 +73,14 @@ export default function UserList() {
         name: user.name,
         Phone: user.phone,
         Address: user.address,
+        contacted: (
+          <button 
+            onClick={() => handleContactChange(user._id, user.contacted)}
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${user.contacted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+          >
+            {user.contacted ? 'Yes' : 'No'}
+          </button>
+        )
       });
     });
 
@@ -134,6 +150,14 @@ export default function UserList() {
                       <MapPin className="h-3.5 w-3.5 shrink-0 translate-y-0.5" aria-hidden="true" />
                       <span>{user.address || "N/A"}</span>
                     </p>
+                    <div className="mt-2">
+                       <button 
+                         onClick={() => handleContactChange(user._id, user.contacted)}
+                         className={`px-3 py-1 rounded-full text-xs font-semibold ${user.contacted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                       >
+                         Contacted: {user.contacted ? 'Yes' : 'No'}
+                       </button>
+                    </div>
                   </div>
                 </div>
               ))}

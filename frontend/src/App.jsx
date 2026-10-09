@@ -18,6 +18,7 @@ import { loadUser } from './actions/userAction';
 import ForgotPassword from './components/user/ForgotPassword';
 import ResetPassword from './components/user/ResetPassword';
 import Cart from './components/cart/Cart';
+import FloatingCart from './components/cart/FloatingCart';
 import Shipping from './components/cart/Shipping';
 import ProtectedRoute from './components/route/ProtectedRoute';
 import ConfirmOrder from './components/cart/ConfirmOrder';
@@ -49,6 +50,7 @@ function AppShell() {
         {!isAdmin && <RegisterComp/>}
         {!isAdmin && <Navbar/>}
         {!isAdmin && <Whatsapp/>}
+        {!isAdmin && <FloatingCart/>}
 
         <ToastContainer
           position="top-right"
@@ -90,9 +92,25 @@ function AppShell() {
 }
 
 function App() {
-useEffect(()=>{
-  store.dispatch(loadUser)
-})
+  useEffect(()=>{
+    store.dispatch(loadUser);
+
+    // Keep backend server awake by pinging it every 5 minutes
+    const pingBackend = () => {
+      const baseUrl = process.env.REACT_APP_FRONTEND_URL?.replace('/api/v1', '') || '';
+      if (baseUrl) {
+        fetch(`${baseUrl}/`).catch(() => {}); // Ignore errors
+      }
+    };
+    
+    // Initial ping
+    pingBackend();
+    
+    // Set interval (5 minutes)
+    const interval = setInterval(pingBackend, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Router>

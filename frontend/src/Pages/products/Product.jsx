@@ -30,7 +30,7 @@ const Product = ({ product }) => {
     if (product.stock === 0) {
       return toast("This product is out of stock!", { type: "error" });
     }
-    dispatch(addCartItem(product._id, quantity));
+    dispatch(addCartItem(product._id, quantity, product));
     toast("Added to cart!", { type: "success" });
   };
 
