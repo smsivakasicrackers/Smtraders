@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MDBDataTable } from "mdbreact";
-import { Users as UsersIcon, Phone, MapPin, FileDown } from "lucide-react";
+import { Users as UsersIcon, Phone, MapPin, FileDown, Calendar } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Sidebar from "./Sidebar";
@@ -21,8 +21,23 @@ export default function UserList() {
     dispatch(getUsers);
   }, [dispatch, isUserUpdated]);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   const handleContactChange = (id, currentStatus) => {
     dispatch(updateUser(id, { contacted: !currentStatus }));
+  };
+
+  const handleProcessChange = (id, newProcess) => {
+    dispatch(updateUser(id, { process: newProcess }));
   };
 
   const downloadUsersPDF = () => {
@@ -39,13 +54,15 @@ export default function UserList() {
 
     autoTable(doc, {
       startY: 36,
-      head: [["#", "Name", "Phone", "Address", "Contacted"]],
+      head: [["#", "Date", "Name", "Phone", "Address", "Contacted", "Process"]],
       body: users.map((user, index) => [
         index + 1,
+        formatDate(user.createdAt),
         user.name || "-",
         user.phone || "-",
         user.address || "-",
         user.contacted ? "Yes" : "No",
+        user.process || "Pending",
       ]),
       headStyles: { fillColor: [184, 31, 66] },
       styles: { fontSize: 9, cellPadding: 3 },
@@ -59,10 +76,12 @@ export default function UserList() {
     const data = {
       columns: [
         { label: "ID", field: "id", sort: "asc" },
+        { label: "Date", field: "date", sort: "asc" },
         { label: "Name", field: "name", sort: "asc" },
         { label: "Phone", field: "Phone", sort: "asc" },
         { label: "Address", field: "Address", sort: "asc" },
         { label: "Contacted", field: "contacted", sort: "asc" },
+        { label: "Process", field: "process", sort: "asc" },
       ],
       rows: [],
     };
@@ -70,16 +89,46 @@ export default function UserList() {
     users.forEach((user, index) => {
       data.rows.push({
         id: index + 1,
+        date: (
+          <span className="text-xs font-medium text-ink-600 whitespace-nowrap">
+            {formatDate(user.createdAt)}
+          </span>
+        ),
         name: user.name,
-        Phone: user.phone,
-        Address: user.address,
+        Phone: user.phone || "-",
+        Address: user.address || "-",
         contacted: (
           <button 
             onClick={() => handleContactChange(user._id, user.contacted)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${user.contacted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+            className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors shadow-sm ${
+              user.contacted 
+                ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                : 'bg-red-100 text-red-800 hover:bg-red-200'
+            }`}
+            title="Click to toggle contacted status"
           >
-            {user.contacted ? 'Yes' : 'No'}
+            {user.contacted ? '✓ Yes' : '✕ No'}
           </button>
+        ),
+        process: (
+          <select
+            value={user.process || "Pending"}
+            onChange={(e) => handleProcessChange(user._id, e.target.value)}
+            className={`text-xs font-semibold rounded-lg px-2.5 py-1 border cursor-pointer outline-none transition-colors shadow-sm ${
+              user.process === "Completed"
+                ? "bg-emerald-50 text-emerald-800 border-emerald-300 focus:ring-1 focus:ring-emerald-400"
+                : user.process === "In Progress"
+                ? "bg-blue-50 text-blue-800 border-blue-300 focus:ring-1 focus:ring-blue-400"
+                : user.process === "Cancelled"
+                ? "bg-stone-100 text-stone-700 border-stone-300 focus:ring-1 focus:ring-stone-400"
+                : "bg-amber-50 text-amber-800 border-amber-300 focus:ring-1 focus:ring-amber-400"
+            }`}
+          >
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
         )
       });
     });
@@ -111,7 +160,7 @@ export default function UserList() {
             <table className="w-full">
               <tbody>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <TableRowSkeleton key={i} columns={4} />
+                  <TableRowSkeleton key={i} columns={5} />
                 ))}
               </tbody>
             </table>
@@ -142,6 +191,10 @@ export default function UserList() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-ink-900">{user.name}</p>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-500">
+                      <Calendar className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      <span>{formatDate(user.createdAt)}</span>
+                    </p>
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-ink-500">
                       <Phone className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                       {user.phone || "N/A"}
@@ -150,13 +203,36 @@ export default function UserList() {
                       <MapPin className="h-3.5 w-3.5 shrink-0 translate-y-0.5" aria-hidden="true" />
                       <span>{user.address || "N/A"}</span>
                     </p>
-                    <div className="mt-2">
+                    <div className="mt-3 flex flex-wrap items-center gap-2 pt-2 border-t border-paper-200">
                        <button 
                          onClick={() => handleContactChange(user._id, user.contacted)}
-                         className={`px-3 py-1 rounded-full text-xs font-semibold ${user.contacted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                         className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors ${
+                           user.contacted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                         }`}
                        >
                          Contacted: {user.contacted ? 'Yes' : 'No'}
                        </button>
+                       <div className="flex items-center gap-1.5">
+                         <span className="text-xs text-ink-500 font-medium">Process:</span>
+                         <select
+                           value={user.process || "Pending"}
+                           onChange={(e) => handleProcessChange(user._id, e.target.value)}
+                           className={`text-xs font-semibold rounded-lg px-2 py-1 border cursor-pointer outline-none ${
+                             user.process === "Completed"
+                               ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                               : user.process === "In Progress"
+                               ? "bg-blue-50 text-blue-800 border-blue-300"
+                               : user.process === "Cancelled"
+                               ? "bg-stone-100 text-stone-700 border-stone-300"
+                               : "bg-amber-50 text-amber-800 border-amber-300"
+                           }`}
+                         >
+                           <option value="Pending">Pending</option>
+                           <option value="In Progress">In Progress</option>
+                           <option value="Completed">Completed</option>
+                           <option value="Cancelled">Cancelled</option>
+                         </select>
+                       </div>
                     </div>
                   </div>
                 </div>
