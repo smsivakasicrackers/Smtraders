@@ -22,12 +22,25 @@ import { Button, Badge, EmptyState, TableRowSkeleton } from "../ui";
 import "./OrderList.css";
 
 const STATUS_TONE = {
-  Pending: "warning",
+  Packing: "gold",
+  "On Delivery": "crimson",
+  "Delivery Complete": "success",
   Processing: "gold",
+  Pending: "warning",
+  Shipped: "crimson",
   Completed: "success",
+  Delivered: "success",
 };
 
-const statusTone = (status) => STATUS_TONE[status] || "neutral";
+export const normalizeOrderStatus = (status) => {
+  if (!status) return "Packing";
+  if (status === "Processing" || status === "Pending") return "Packing";
+  if (status === "Shipped") return "On Delivery";
+  if (status === "Delivered" || status === "Completed") return "Delivery Complete";
+  return status;
+};
+
+const statusTone = (status) => STATUS_TONE[normalizeOrderStatus(status)] || "neutral";
 
 const SELECT_CLASSES =
   "rounded-lg border border-ink-200 bg-white px-2 py-1.5 text-sm font-medium text-ink-800 focus:border-crimson-400 focus:outline-none focus:ring-2 focus:ring-crimson-100";
@@ -162,8 +175,14 @@ const OrderList = () => {
   };
 
   const sortedOrders = [...adminOrders].sort((a, b) => {
-    const orderPriority = { Processing: 1, Completed: 2, Delivered: 3 };
-    return (orderPriority[a.orderStatus] || 4) - (orderPriority[b.orderStatus] || 4);
+    const orderPriority = {
+      Packing: 1,
+      "On Delivery": 2,
+      "Delivery Complete": 3,
+    };
+    const normA = normalizeOrderStatus(a.orderStatus);
+    const normB = normalizeOrderStatus(b.orderStatus);
+    return (orderPriority[normA] || 4) - (orderPriority[normB] || 4);
   });
 
   const setOrders = () => {
@@ -187,13 +206,13 @@ const OrderList = () => {
         Amount: `₹${order?.totalPrice?.toFixed(2) || "0.00"}`,
         status: (
           <select
-            value={order?.orderStatus || "Processing"}
+            value={normalizeOrderStatus(order?.orderStatus)}
             onChange={(e) => handleStatusChange(order._id, e.target.value)}
             className={SELECT_CLASSES}
           >
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Completed">Completed</option>
+            <option value="Packing">Packing</option>
+            <option value="On Delivery">On Delivery</option>
+            <option value="Delivery Complete">Delivery Complete</option>
           </select>
         ),
         invoice: (
@@ -335,7 +354,7 @@ const OrderList = () => {
                       <p className="text-sm text-ink-500">{order.shippingInfo?.phoneNo || "N/A"}</p>
                     </div>
                     <Badge tone={statusTone(order.orderStatus)}>
-                      {order.orderStatus || "Processing"}
+                      {normalizeOrderStatus(order.orderStatus)}
                     </Badge>
                   </div>
 
@@ -348,13 +367,13 @@ const OrderList = () => {
 
                   <div className="mt-3">
                     <select
-                      value={order?.orderStatus || "Processing"}
+                      value={normalizeOrderStatus(order?.orderStatus)}
                       onChange={(e) => handleStatusChange(order._id, e.target.value)}
                       className={`${SELECT_CLASSES} w-full`}
                     >
-                      <option value="Pending">Pending</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Completed">Completed</option>
+                      <option value="Packing">Packing</option>
+                      <option value="On Delivery">On Delivery</option>
+                      <option value="Delivery Complete">Delivery Complete</option>
                     </select>
                   </div>
 

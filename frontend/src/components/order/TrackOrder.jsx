@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Phone, Check, PackageSearch } from 'lucide-react';
 import Loader from '../Loader';
-import { Button, Card, EmptyState } from '../ui';
+import { Button, Card, EmptyState, Badge } from '../ui';
 
 const frontendUrl = process.env.REACT_APP_FRONTEND_URL;
 
@@ -34,16 +34,25 @@ const TrackOrder = () => {
         }
     };
 
+    const normalizeOrderStatus = (status) => {
+        if (!status) return 'Packing';
+        if (status === 'Processing' || status === 'Pending') return 'Packing';
+        if (status === 'Shipped') return 'On Delivery';
+        if (status === 'Delivered' || status === 'Completed') return 'Delivery Complete';
+        return status;
+    };
+
     const getStatusStep = (status) => {
-        switch (status) {
-            case 'Processing': return 1;
-            case 'Shipped': return 2;
-            case 'Delivered': return 3;
+        const normalized = normalizeOrderStatus(status);
+        switch (normalized) {
+            case 'Packing': return 1;
+            case 'On Delivery': return 2;
+            case 'Delivery Complete': return 3;
             default: return 1;
         }
     };
 
-    const STATUS_LABELS = ['Processing', 'Shipped', 'Delivered'];
+    const STATUS_LABELS = ['Packing', 'On Delivery', 'Delivery Complete'];
 
     return (
         <div className="min-h-screen bg-paper-50 py-16 sm:py-24">
@@ -91,9 +100,20 @@ const TrackOrder = () => {
                                     <Card key={order._id} padding="lg">
                                         <div className="flex flex-col justify-between gap-3 border-b border-ink-100 pb-6 sm:flex-row sm:items-center">
                                             <div>
-                                                <p className="text-xs font-bold uppercase tracking-widest text-crimson-600">
-                                                    Order #{order.orderNumber || order._id.substring(0, 8)}
-                                                </p>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <p className="text-xs font-bold uppercase tracking-widest text-crimson-600">
+                                                        Order #{order.orderNumber || order._id.substring(0, 8)}
+                                                    </p>
+                                                    <Badge tone={
+                                                        normalizeOrderStatus(order.orderStatus) === 'Delivery Complete'
+                                                            ? 'success'
+                                                            : normalizeOrderStatus(order.orderStatus) === 'On Delivery'
+                                                                ? 'crimson'
+                                                                : 'gold'
+                                                    }>
+                                                        {normalizeOrderStatus(order.orderStatus)}
+                                                    </Badge>
+                                                </div>
                                                 <p className="mt-1 text-sm text-ink-500">
                                                     Placed on{" "}
                                                     {new Date(order.createdAt).toLocaleDateString("en-IN", {
@@ -124,7 +144,7 @@ const TrackOrder = () => {
                                             <div className="relative flex justify-between">
                                                 {STATUS_LABELS.map((label, idx) => {
                                                     const step = idx + 1;
-                                                    const isDelivered = label === 'Delivered';
+                                                    const isDelivered = label === 'Delivery Complete';
                                                     const reached = getStatusStep(order.orderStatus) >= step;
                                                     return (
                                                         <div key={label} className="flex flex-col items-center">
