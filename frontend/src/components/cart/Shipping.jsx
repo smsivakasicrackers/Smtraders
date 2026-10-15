@@ -5,6 +5,89 @@ import { toast } from "react-toastify";
 import { saveShippingInfo } from "../../slices/cartSlice";
 import CheckoutSteps from "./CheckoutSteps";
 
+export const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+export const UNION_TERRITORIES = [
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
+
+export const TAMIL_NADU_DISTRICTS = [
+  "Ariyalur",
+  "Chengalpattu",
+  "Chennai",
+  "Coimbatore",
+  "Cuddalore",
+  "Dharmapuri",
+  "Dindigul",
+  "Erode",
+  "Kallakurichi",
+  "Kanchipuram",
+  "Kanyakumari",
+  "Karur",
+  "Krishnagiri",
+  "Madurai",
+  "Mayiladuthurai",
+  "Nagapattinam",
+  "Namakkal",
+  "Nilgiris",
+  "Perambalur",
+  "Pudukkottai",
+  "Ramanathapuram",
+  "Ranipet",
+  "Salem",
+  "Sivaganga",
+  "Tenkasi",
+  "Thanjavur",
+  "Theni",
+  "Thoothukudi",
+  "Tiruchirappalli",
+  "Tirunelveli",
+  "Tirupathur",
+  "Tiruppur",
+  "Tiruvallur",
+  "Tiruvannamalai",
+  "Tiruvarur",
+  "Vellore",
+  "Viluppuram",
+  "Virudhunagar",
+];
+
 export const validateShipping = (shippingInfo, navigate) => {
   if (
     !shippingInfo.address ||
@@ -32,6 +115,14 @@ export default function Shipping() {
   const [state, setState] = useState(shippingInfo.state || "");
   const [name, setName] = useState(shippingInfo.name || "");
 
+  // If saved state is Tamil Nadu and has a custom city, allow manual entry mode
+  const [isCustomCity, setIsCustomCity] = useState(() => {
+    if (shippingInfo.state === "Tamil Nadu" && shippingInfo.city) {
+      return !TAMIL_NADU_DISTRICTS.includes(shippingInfo.city);
+    }
+    return false;
+  });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -42,11 +133,31 @@ export default function Shipping() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleStateChange = (e) => {
+    const selectedState = e.target.value;
+    setState(selectedState);
+    if (selectedState === "Tamil Nadu") {
+      if (city && !TAMIL_NADU_DISTRICTS.includes(city)) {
+        setIsCustomCity(true);
+      } else {
+        setIsCustomCity(false);
+      }
+    } else {
+      setIsCustomCity(false);
+    }
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
-    dispatch(saveShippingInfo({ name, address, city, phoneNo, postalCode, state }));
+    if (!city || !city.trim()) {
+      toast.error("Please provide a city or district");
+      return;
+    }
+    dispatch(saveShippingInfo({ name, address, city: city.trim(), phoneNo, postalCode, state }));
     navigate("/order/confirm");
   };
+
+  const isTamilNadu = state === "Tamil Nadu";
 
   return (
     <Fragment>
@@ -77,36 +188,6 @@ export default function Shipping() {
               />
             </div>
 
-            {/* Address */}
-            <div>
-              <label htmlFor="address_field" className={labelClasses}>
-                Address
-              </label>
-              <input
-                type="text"
-                id="address_field"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                required
-                className={fieldClasses}
-              />
-            </div>
-
-            {/* City */}
-            <div>
-              <label htmlFor="city_field" className={labelClasses}>
-                City
-              </label>
-              <input
-                type="text"
-                id="city_field"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                required
-                className={fieldClasses}
-              />
-            </div>
-
             {/* Phone */}
             <div>
               <label htmlFor="phone_field" className={labelClasses}>
@@ -122,10 +203,113 @@ export default function Shipping() {
               />
             </div>
 
+            {/* Address */}
+            <div>
+              <label htmlFor="address_field" className={labelClasses}>
+                Address
+              </label>
+              <input
+                type="text"
+                id="address_field"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                className={fieldClasses}
+              />
+            </div>
+
+            {/* State */}
+            <div>
+              <label htmlFor="state_field" className={labelClasses}>
+                State / Union Territory
+              </label>
+              <select
+                id="state_field"
+                value={state}
+                onChange={handleStateChange}
+                required
+                className={`${fieldClasses} bg-white`}
+              >
+                <option value="">Select State / UT</option>
+                <optgroup label="States">
+                  {INDIAN_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Union Territories">
+                  {UNION_TERRITORIES.map((ut) => (
+                    <option key={ut} value={ut}>
+                      {ut}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+
+            {/* City / District */}
+            <div>
+              <label htmlFor="city_field" className={labelClasses}>
+                {isTamilNadu ? "District / City" : "City"}
+              </label>
+
+              {isTamilNadu && !isCustomCity ? (
+                <div>
+                  <select
+                    id="city_field"
+                    value={city}
+                    onChange={(e) => {
+                      if (e.target.value === "__custom__") {
+                        setIsCustomCity(true);
+                        setCity("");
+                      } else {
+                        setCity(e.target.value);
+                      }
+                    }}
+                    required
+                    className={`${fieldClasses} bg-white`}
+                  >
+                    <option value="">Select Tamil Nadu District (38 Districts)</option>
+                    {TAMIL_NADU_DISTRICTS.map((dist) => (
+                      <option key={dist} value={dist}>
+                        {dist}
+                      </option>
+                    ))}
+                    <option value="__custom__">✏️ Other City / Town (Enter manually)</option>
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="text"
+                    id="city_field"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder={isTamilNadu ? "Enter town / city name" : "City"}
+                    required
+                    className={fieldClasses}
+                  />
+                  {isTamilNadu && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCustomCity(false);
+                        setCity("");
+                      }}
+                      className="mt-1.5 text-xs font-medium text-crimson-600 hover:text-crimson-700 hover:underline"
+                    >
+                      ← Choose from 38 Tamil Nadu districts list
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Postal Code */}
             <div>
               <label htmlFor="postal_code_field" className={labelClasses}>
-                Postal Code
+                Postal Code (PIN Code)
               </label>
               <input
                 type="number"
@@ -135,27 +319,6 @@ export default function Shipping() {
                 required
                 className={fieldClasses}
               />
-            </div>
-
-            {/* State */}
-            <div>
-              <label htmlFor="state_field" className={labelClasses}>
-                State
-              </label>
-              <select
-                id="state_field"
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                required
-                className={`${fieldClasses} bg-white`}
-              >
-                <option value="">Select State</option>
-                <option value="Tamil Nadu">Tamil Nadu</option>
-                <option value="Kerala">Kerala</option>
-                <option value="Andhra Pradesh">Andhra Pradesh</option>
-                <option value="Telangana">Telangana</option>
-                <option value="Maharashtra">Maharashtra</option>
-              </select>
             </div>
 
             {/* Submit Button */}
