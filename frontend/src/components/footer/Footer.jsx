@@ -80,10 +80,16 @@ const Footer = () => {
             Contact
           </h3>
           <div className="space-y-3 text-sm text-ink-400">
-            <p className="flex items-start gap-2.5">
+            <a
+              href={BRAND.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-2.5 hover:text-gold-300 transition"
+              title="View on Google Maps"
+            >
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
               <span>{BRAND.address.full}</span>
-            </p>
+            </a>
             <a
               href={`tel:+91${BRAND.phones.primary}`}
               className="flex items-center gap-2.5 hover:text-gold-300"

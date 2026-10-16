@@ -274,6 +274,15 @@ const About = () => {
             <MapPin className="h-5 w-5" aria-hidden="true" />
           </span>
           <p className="leading-relaxed text-ink-600">{BRAND.address.full}</p>
+          <a
+            href={BRAND.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-crimson-200 bg-crimson-50 px-3 py-1.5 text-xs font-semibold text-crimson-700 hover:bg-crimson-100 transition"
+          >
+            <MapPin className="h-3.5 w-3.5" />
+            Open in Google Maps
+          </a>
         </Card>
       </section>
 

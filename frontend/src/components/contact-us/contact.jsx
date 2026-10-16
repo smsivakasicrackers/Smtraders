@@ -223,9 +223,26 @@ const Contact = () => {
 
       {/* Google Map */}
       <section className="section-container pb-16 sm:pb-20">
+        <div className="mb-4 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+          <div>
+            <h3 className="font-display text-lg font-semibold text-ink-900">Store Location</h3>
+            <p className="text-sm text-ink-500">
+              {BRAND.address.full}
+            </p>
+          </div>
+          <a
+            href={BRAND.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-crimson-200 bg-crimson-50 px-3 py-1.5 text-xs font-semibold text-crimson-700 hover:bg-crimson-100 transition"
+          >
+            <MapPin className="h-3.5 w-3.5" />
+            Open in Google Maps
+          </a>
+        </div>
         <div className="overflow-hidden rounded-card border border-ink-100 shadow-card">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3936.3778127552728!2d77.9098025!3d9.3881994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b06cbf39a3eab71%3A0xd9fb1439ac0c587e!2ssm%20crackers!5e0!3m2!1sen!2sin!4v1757345080519!5m2!1sen!2sin"
+            src={BRAND.mapsEmbed}
             className="h-[350px] w-full border-0 sm:h-[400px]"
             allowFullScreen=""
             loading="lazy"

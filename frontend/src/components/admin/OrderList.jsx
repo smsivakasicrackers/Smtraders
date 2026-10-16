@@ -90,9 +90,9 @@ const OrderList = () => {
         </div>
         <div style="text-align: right;">
           <h2 style="margin: 0; color: #007bff;">SM CRACKERS</h2>
-          <p style="margin: 2px 0;">4/175/A Sattur to Sivakasi road, Veerapandiyapuram</p>
-          <p style="margin: 2px 0;">Near Toll Gate, Sattur - 626203</p>
-          <p style="margin: 2px 0;">📞 +91 8903359989 / 6381933039 / 8248450298</p>
+          <p style="margin: 2px 0;">Sattur to Thayilpatti Road, Unjampatti</p>
+          <p style="margin: 2px 0;">Near Jai Sree Matches, Sattur - 626203</p>
+          <p style="margin: 2px 0;">📞 +91 8903359989 / 8248450298 / 6381933039</p>
         </div>
       </div>
 
@@ -409,8 +409,8 @@ const OrderList = () => {
               <div className="text-ink-700">
                 <h3 className="mb-2 font-display text-xl font-semibold text-ink-900">SM CRACKERS</h3>
                 <p className="mb-4 text-sm">
-                  4/175/A Sattur to Sivakasi road, Veerapandiyapuram<br />
-                  Near toll gate, Sattur - 626203<br />
+                  Sattur to Thayilpatti Road, Unjampatti<br />
+                  Near Jai Sree Matches, Sattur - 626203<br />
                   Phone: +91 8903359989 / 8248450298
                 </p>
                 <hr className="my-3 border-ink-100" />
