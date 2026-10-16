@@ -102,7 +102,7 @@ const TrackOrder = () => {
                                             <div>
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <p className="text-xs font-bold uppercase tracking-widest text-crimson-600">
-                                                        Order #{order.orderNumber || order._id.substring(0, 8)}
+                                                        Order #{order.orderNumber ? String(order.orderNumber).padStart(3, '0') : order._id.substring(0, 8)}
                                                     </p>
                                                     <Badge tone={
                                                         normalizeOrderStatus(order.orderStatus) === 'Delivery Complete'

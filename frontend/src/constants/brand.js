@@ -6,12 +6,12 @@ export const BRAND = {
   legalName: "SM Sivakasi Crackers",
   foundedYear: 2015,
   address: {
-    line1: "Sattur to Thayilpatti Road, Unjampatti",
-    line2: "Near Jai Sree Matches",
-    line3: "Sattur - 626203",
-    landmark: "Near Jai Sree Matches",
+    line1: "SATTUR TO THAYILPATTI ROAD, UNJAMPATTI",
+    line2: "NEAR JAI SREE MATCHES",
+    line3: "SATTUR - 626203",
+    landmark: "NEAR JAI SREE MATCHES",
     pincode: "626203",
-    full: "Sattur to Thayilpatti Road, Unjampatti, Near Jai Sree Matches, Sattur - 626203",
+    full: "SATTUR TO THAYILPATTI ROAD, UNJAMPATTI, NEAR JAI SREE MATCHES, SATTUR - 626203",
   },
   email: "smpyropark.2019@gmail.com",
   phones: {

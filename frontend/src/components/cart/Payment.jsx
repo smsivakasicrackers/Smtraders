@@ -158,10 +158,10 @@ const Payment = () => {
                     <h1 className="mt-2 font-display text-2xl font-bold uppercase tracking-wide text-ink-900">
                         {BRAND.name}
                     </h1>
-                    <p className="mt-2 text-sm text-ink-600">
-                        Address: {BRAND.address.full}
+                    <p className="mt-2 text-sm font-bold uppercase tracking-wide text-ink-900">
+                        {BRAND.address.full}
                         <br />
-                        Phone: {BRAND.phones.primary} / {BRAND.phones.secondary}
+                        <span className="font-semibold text-ink-800 normal-case">Phone: {BRAND.phones.primary} / {BRAND.phones.secondary} / {BRAND.phones.tertiary}</span>
                     </p>
                 </div>
 
@@ -182,7 +182,7 @@ const Payment = () => {
                         </p>
                     </div>
                     <div className="text-sm text-ink-700 sm:text-right">
-                        <p><strong className="text-ink-900">Order Id:</strong> {orderDetail?.orderNumber || "Loading..."}</p>
+                        <p><strong className="text-ink-900">Invoice No:</strong> <span className="font-mono font-bold text-crimson-600">#{orderDetail?.orderNumber ? String(orderDetail.orderNumber).padStart(3, "0") : "Loading..."}</span></p>
                         <p><strong className="text-ink-900">Date:</strong> {new Date().toLocaleDateString()}</p>
                     </div>
                 </div>
@@ -225,7 +225,7 @@ const Payment = () => {
                 {/* Footer */}
                 <div className="mt-10 border-t border-ink-200 pt-4 text-center text-xs text-ink-500">
                     <p>THANK YOU FOR SHOPPING WITH US!</p>
-                    <p>{BRAND.address.full}</p>
+                    <p className="font-bold uppercase tracking-wide text-ink-800">{BRAND.address.full}</p>
                 </div>
             </div>
 
@@ -241,7 +241,8 @@ const Payment = () => {
 
                 <button
                     onClick={() => {
-                        const message = `Hello SM Crackers! 🎇\n\nI have successfully placed an order.\n*Order ID:* ${orderDetail?.orderNumber || "Pending"}\n*Total Amount:* ₹${calculateNetTotal().toFixed(2)}\n*Name:* ${shippingInfo?.name}\n\nPlease process my order!`;
+                        const orderNumStr = orderDetail?.orderNumber ? String(orderDetail.orderNumber).padStart(3, "0") : (orderDetail?._id?.substring(0, 8) || "Pending");
+                        const message = `Hello SM Crackers! 🎇\n\nI have successfully placed an order.\n*Invoice No:* #${orderNumStr}\n*Total Amount:* ₹${calculateNetTotal().toFixed(2)}\n*Name:* ${shippingInfo?.name}\n\nPlease process my order!`;
                         const whatsappUrl = `https://wa.me/${BRAND.whatsapp.orderNotify}?text=${encodeURIComponent(message)}`;
                         window.open(whatsappUrl, '_blank');
                     }}

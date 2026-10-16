@@ -40,6 +40,22 @@ export const normalizeOrderStatus = (status) => {
   return status;
 };
 
+export const formatInvoiceNumber = (order, allOrders = []) => {
+  if (order?.orderNumber != null && !isNaN(Number(order.orderNumber))) {
+    return String(order.orderNumber).padStart(3, "0");
+  }
+  if (Array.isArray(allOrders) && allOrders.length > 0) {
+    const chronological = [...allOrders].sort(
+      (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+    );
+    const index = chronological.findIndex((o) => o._id === order?._id);
+    if (index !== -1) {
+      return String(index + 1).padStart(3, "0");
+    }
+  }
+  return "001";
+};
+
 const statusTone = (status) => STATUS_TONE[normalizeOrderStatus(status)] || "neutral";
 
 const SELECT_CLASSES =
@@ -89,18 +105,18 @@ const OrderList = () => {
           <img src="/images/logo.png" alt="Logo" style="width: 120px;"/>
         </div>
         <div style="text-align: right;">
-          <h2 style="margin: 0; color: #007bff;">SM CRACKERS</h2>
-          <p style="margin: 2px 0;">Sattur to Thayilpatti Road, Unjampatti</p>
-          <p style="margin: 2px 0;">Near Jai Sree Matches, Sattur - 626203</p>
-          <p style="margin: 2px 0;">📞 +91 8903359989 / 8248450298 / 6381933039</p>
+          <h2 style="margin: 0; color: #007bff; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;">SM CRACKERS</h2>
+          <p style="margin: 3px 0; font-weight: 700; text-transform: uppercase; color: #000; font-size: 13px; letter-spacing: 0.3px;">SATTUR TO THAYILPATTI ROAD, UNJAMPATTI</p>
+          <p style="margin: 3px 0; font-weight: 700; text-transform: uppercase; color: #000; font-size: 13px; letter-spacing: 0.3px;">NEAR JAI SREE MATCHES, SATTUR - 626203</p>
+          <p style="margin: 3px 0; font-weight: 700; color: #000; font-size: 13px;">📞 +91 8903359989 / 8248450298 / 6381933039</p>
         </div>
       </div>
 
       <!-- Invoice Info -->
       <div style="margin-top: 20px; display: flex; justify-content: space-between; font-size: 14px;">
         <div>
-          <p><strong>Invoice No:</strong> ${order._id}</p>
-          <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+          <p style="margin: 2px 0;"><strong>Invoice No:</strong> ${formatInvoiceNumber(order, adminOrders)}</p>
+          <p style="margin: 2px 0;"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
         </div>
         <div style="text-align: right;">
           <p><strong>Customer:</strong> ${order.shippingInfo?.name || "N/A"}</p>
@@ -154,7 +170,7 @@ const OrderList = () => {
 
     const options = {
       margin: [20, 10, 20, 10], // Top, Right, Bottom, Left
-      filename: `Invoice_${order._id}.pdf`,
+      filename: `Invoice_${formatInvoiceNumber(order, adminOrders)}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
@@ -188,6 +204,7 @@ const OrderList = () => {
   const setOrders = () => {
     const data = {
       columns: [
+        { label: "Invoice #", field: "invoiceNo" },
         { label: "Customer Name", field: "username" },
         { label: "Phone Number", field: "Phoneno" },
         { label: "Items", field: "noofItems" },
@@ -200,6 +217,11 @@ const OrderList = () => {
     };
     sortedOrders.forEach((order) => {
       data.rows.push({
+        invoiceNo: (
+          <span className="font-mono font-bold text-crimson-600">
+            #{formatInvoiceNumber(order, adminOrders)}
+          </span>
+        ),
         username: order.shippingInfo?.name || "N/A",
         Phoneno: order.shippingInfo?.phoneNo || "N/A",
         noofItems: order?.orderItems?.length || 0,
@@ -273,6 +295,7 @@ const OrderList = () => {
     }
     const exportData = adminOrders.map((order, index) => ({
       "S.No": index + 1,
+      "Invoice No": formatInvoiceNumber(order, adminOrders),
       "Customer Name": order.shippingInfo?.name || "N/A",
       "Phone Number": order.shippingInfo?.phoneNo || "N/A",
       Address: order.shippingInfo?.address || "N/A",
@@ -402,22 +425,34 @@ const OrderList = () => {
         {/* Invoice Modal */}
         <Modal show={showInvoice} onHide={handleCloseInvoice} size="lg">
           <Modal.Header closeButton>
-            <Modal.Title>Invoice</Modal.Title>
+            <Modal.Title>
+              Invoice #{selectedOrder ? formatInvoiceNumber(selectedOrder, adminOrders) : ""}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {selectedOrder ? (
               <div className="text-ink-700">
-                <h3 className="mb-2 font-display text-xl font-semibold text-ink-900">SM CRACKERS</h3>
-                <p className="mb-4 text-sm">
-                  Sattur to Thayilpatti Road, Unjampatti<br />
-                  Near Jai Sree Matches, Sattur - 626203<br />
-                  Phone: +91 8903359989 / 8248450298
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  <div>
+                    <h3 className="font-display text-xl font-bold uppercase tracking-wide text-ink-900">SM CRACKERS</h3>
+                    <p className="mt-1 text-sm font-bold uppercase tracking-wide text-ink-900 leading-snug">
+                      SATTUR TO THAYILPATTI ROAD, UNJAMPATTI<br />
+                      NEAR JAI SREE MATCHES, SATTUR - 626203<br />
+                      <span className="font-semibold text-ink-800 normal-case">Phone: +91 8903359989 / 8248450298 / 6381933039</span>
+                    </p>
+                  </div>
+                  <div className="text-sm sm:text-right">
+                    <p className="font-bold text-ink-900">
+                      Invoice No: <span className="font-mono text-crimson-600 font-bold text-base">#{formatInvoiceNumber(selectedOrder, adminOrders)}</span>
+                    </p>
+                    <p className="text-ink-600">Date: {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
                 <hr className="my-3 border-ink-100" />
                 <div className="mb-4 grid grid-cols-1 gap-2 md:grid-cols-2">
                   <p><strong>Name:</strong> {selectedOrder.shippingInfo?.name}</p>
                   <p><strong>Phone:</strong> {selectedOrder.shippingInfo?.phoneNo}</p>
-                  <p><strong>Address:</strong> {selectedOrder.shippingInfo?.address}</p>
+                  <p><strong>Address:</strong> {selectedOrder.shippingInfo?.address}, {selectedOrder.shippingInfo?.city}, {selectedOrder.shippingInfo?.state}</p>
                   <p><strong>Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
                 </div>
                 <table className="w-full border border-ink-200 text-sm">
