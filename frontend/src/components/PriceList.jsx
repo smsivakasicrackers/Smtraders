@@ -1,11 +1,10 @@
 import React from "react";
-import { FaFilePdf, FaFileExcel } from "react-icons/fa";
+import { FaFilePdf } from "react-icons/fa";
 import { Download } from "lucide-react";
 import Footer from "./footer/Footer";
 import MetaData from "../Pages/Home/MetaData";
 import { SectionHeading, Card, Badge } from "./ui";
 import pdf from "../SMSivakasiCrackers.pdf";
-import xcl from "../SMCRACKERS.xlsx";
 
 const PriceList = () => {
   const year = new Date().getFullYear();
@@ -18,18 +17,18 @@ const PriceList = () => {
         <SectionHeading
           eyebrow="Price List"
           title={`${year} Crackers Price List`}
-          subtitle="Download our latest crackers price list in PDF or Excel format."
+          subtitle="Download our latest crackers price list in PDF format."
           align="center"
           className="mx-auto text-center"
         />
 
-        <div className="mx-auto mt-12 grid max-w-3xl gap-6 sm:grid-cols-2">
+        <div className="mx-auto mt-12 max-w-md">
           <Card
             as="a"
             href={pdf}
             download
             interactive
-            className="flex flex-col items-center gap-4 text-center"
+            className="flex flex-col items-center gap-4 p-8 text-center"
           >
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-crimson-50 text-crimson-600">
               <FaFilePdf className="h-8 w-8" aria-hidden="true" />
@@ -45,30 +44,6 @@ const PriceList = () => {
             <Badge tone="crimson" className="mt-1">
               <Download className="h-3.5 w-3.5" aria-hidden="true" />
               Download PDF
-            </Badge>
-          </Card>
-
-          <Card
-            as="a"
-            href={xcl}
-            download
-            interactive
-            className="flex flex-col items-center gap-4 text-center"
-          >
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-              <FaFileExcel className="h-8 w-8" aria-hidden="true" />
-            </span>
-            <div>
-              <h3 className="font-display text-lg font-semibold text-ink-900">
-                Excel Price List
-              </h3>
-              <p className="mt-1 text-sm text-ink-600">
-                Get an editable spreadsheet version for easy comparison.
-              </p>
-            </div>
-            <Badge tone="success" className="mt-1">
-              <Download className="h-3.5 w-3.5" aria-hidden="true" />
-              Download Excel
             </Badge>
           </Card>
         </div>

@@ -90,14 +90,5 @@
     transform: scale(1.05);
   }
   
-  /* Excel button */
-  .btn-excel {
-    background: linear-gradient(45deg, #007a33, #00b359);
-    color: #fff;
-  }
-  
-  .btn-excel:hover {
-    background: linear-gradient(45deg, #006622, #00994d);
-    transform: scale(1.05);
-  }
+
   
