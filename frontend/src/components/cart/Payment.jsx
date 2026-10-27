@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { Download, MessageCircle } from "lucide-react";
+import { Download, MessageCircle, AlertCircle } from "lucide-react";
+import { toast } from "react-toastify";
 
 import { createOrder } from "../../actions/orderActions";
 import { orderCompleted } from "../../slices/cartSlice";
@@ -15,7 +16,7 @@ import CheckoutSteps from "./CheckoutSteps";
 
 const Payment = () => {
     const { shippingInfo: liveShippingInfo, items: liveCartItems } = useSelector((state) => state.cartState);
-    const { orderDetail } = useSelector((state) => state.orderState);
+    const { orderDetail, error: orderError } = useSelector((state) => state.orderState);
 
     // Snapshot the cart/shipping data the moment we arrive so the invoice keeps
     // rendering correctly after we clear the live cart post-order.
@@ -122,8 +123,36 @@ const Payment = () => {
         }
 
         pdf.save("invoice.pdf");
-      };
+    };
 
+    useEffect(() => {
+        if (orderError) {
+            toast.error(orderError);
+        }
+    }, [orderError]);
+
+    if (orderError) {
+        return (
+            <div>
+                <CheckoutSteps current={4} />
+                <div className="section-container py-16 text-center">
+                    <div className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50 p-8 shadow-card">
+                        <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+                        <h2 className="font-display text-xl font-bold text-red-900 mb-2">Unable to Complete Order</h2>
+                        <p className="text-sm text-red-700 mb-6">{orderError}</p>
+                        <button
+                            type="button"
+                            onClick={() => navigate("/Mycart")}
+                            className="inline-flex items-center justify-center rounded-xl bg-crimson-600 px-6 py-3 font-semibold text-white shadow-soft transition-colors hover:bg-crimson-700"
+                        >
+                            Return to Cart
+                        </button>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 
     return (
         <div>

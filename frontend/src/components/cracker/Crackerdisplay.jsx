@@ -33,7 +33,7 @@ const Crackerdisplay = () => {
         <ProductGridSkeleton count={8} />
       ) : error ? (
         <ErrorState title="Couldn't load products" description={error} />
-      ) : !products || products.length === 0 ? (
+      ) : !products || products.filter((p) => Number(p.stock) > 0).length === 0 ? (
         <EmptyState
           title="No products available"
           description="Check back soon — new crackers are added regularly."
@@ -41,6 +41,7 @@ const Crackerdisplay = () => {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-8">
           {[...products]
+            .filter((p) => Number(p.stock) > 0)
             .sort((a, b) => {
               const indexA = CATEGORIES.indexOf(a.category);
               const indexB = CATEGORIES.indexOf(b.category);

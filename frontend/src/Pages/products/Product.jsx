@@ -11,10 +11,15 @@ const Product = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const isOutOfStock = !product.stock || Number(product.stock) <= 0;
+
   // ✅ Increase Quantity
   const increaseQty = (e) => {
     e?.stopPropagation?.();
-    if (product.stock === 0 || quantity >= product.stock) {
+    if (isOutOfStock) {
+      return toast.error("This product is out of stock!");
+    }
+    if (quantity >= product.stock) {
       return toast.warning("Maximum stock reached!");
     }
     setQuantity((prevQty) => prevQty + 1);
@@ -32,8 +37,11 @@ const Product = ({ product }) => {
   // ✅ Add to Cart
   const handleAddToCart = (e) => {
     e?.stopPropagation?.();
-    if (product.stock === 0) {
+    if (isOutOfStock) {
       return toast.error("This product is out of stock!");
+    }
+    if (quantity > product.stock) {
+      return toast.warning(`Only ${product.stock} available in stock!`);
     }
     dispatch(addCartItem(product._id, quantity, product));
     toast.success("Added to cart!");
@@ -113,7 +121,7 @@ const Product = ({ product }) => {
             className="flex items-center justify-between gap-2 border-t border-ink-100 pt-3 sm:gap-3 sm:pt-4"
           >
             {/* Quantity */}
-            <QuantitySelector value={quantity} onIncrease={increaseQty} onDecrease={decreaseQty} size="sm" />
+            <QuantitySelector value={quantity} onIncrease={increaseQty} onDecrease={decreaseQty} disabled={isOutOfStock} size="sm" />
 
             {/* Add Button */}
             <Button
@@ -121,7 +129,7 @@ const Product = ({ product }) => {
               size="sm"
               icon={ShoppingCart}
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={isOutOfStock}
               aria-label={`Add ${product.name} to cart`}
               className="!h-9 !w-9 shrink-0 !p-0 sm:!h-auto sm:!w-auto sm:flex-1 sm:!px-6 sm:!py-2"
             >

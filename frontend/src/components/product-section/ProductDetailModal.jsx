@@ -59,8 +59,13 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
   const savingsAmount = hasDiscount ? product.originalPrice - product.price : 0;
   const subtotal = product.price * quantity;
 
+  const isOutOfStock = !product.stock || Number(product.stock) <= 0;
+
   const increaseQty = () => {
-    if (product.stock === 0 || quantity >= product.stock) {
+    if (isOutOfStock) {
+      return toast.error("This product is currently out of stock!");
+    }
+    if (quantity >= product.stock) {
       return toast.warning("Maximum available stock reached!");
     }
     setQuantity((prev) => prev + 1);
@@ -74,16 +79,22 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
   };
 
   const handleAddToCart = () => {
-    if (product.stock === 0) {
+    if (isOutOfStock) {
       return toast.error("This product is currently out of stock!");
+    }
+    if (quantity > product.stock) {
+      return toast.warning(`Only ${product.stock} available in stock!`);
     }
     dispatch(addCartItem(product._id, quantity, product));
     toast.success(`Added ${quantity} × ${product.name} to cart!`);
   };
 
   const handleBuyNow = () => {
-    if (product.stock === 0) {
+    if (isOutOfStock) {
       return toast.error("This product is currently out of stock!");
+    }
+    if (quantity > product.stock) {
+      return toast.warning(`Only ${product.stock} available in stock!`);
     }
     dispatch(addCartItem(product._id, quantity, product));
     toast.success(`Added ${product.name} to cart! Proceeding to checkout...`);
@@ -259,7 +270,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                     value={quantity}
                     onIncrease={increaseQty}
                     onDecrease={decreaseQty}
-                    disabled={product.stock === 0}
+                    disabled={isOutOfStock}
                     size="md"
                   />
                 </div>
@@ -279,7 +290,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0}
+                  disabled={isOutOfStock}
                   className="flex items-center justify-center gap-2 rounded-xl bg-crimson-600 px-5 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-crimson-700 hover:shadow-lg disabled:cursor-not-allowed disabled:bg-ink-300"
                 >
                   <ShoppingCart className="h-4 w-4" />
@@ -289,7 +300,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={handleBuyNow}
-                  disabled={product.stock === 0}
+                  disabled={isOutOfStock}
                   className="flex items-center justify-center gap-2 rounded-xl bg-ink-900 px-5 py-3 text-sm font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-ink-800 hover:shadow-lg disabled:cursor-not-allowed disabled:bg-ink-300"
                 >
                   <Zap className="h-4 w-4 text-gold-400" />

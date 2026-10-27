@@ -14,6 +14,11 @@ export const addCartItem = (id, quantity, productData = null) => async (dispatch
             productInfo = data.Product;
         }
 
+        if (Number(productInfo.stock) <= 0) {
+            console.warn(`Product "${productInfo.name}" is out of stock.`);
+            return;
+        }
+
         const item = {
             product: productInfo._id,
             name: productInfo.name,

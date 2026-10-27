@@ -69,7 +69,8 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
   // Append newly-fetched pages onto the running list; page 1 replaces it.
   useEffect(() => {
     if (!products) return;
-    setAllProducts((prev) => (currentPage === 1 ? products : [...prev, ...products]));
+    const inStockOnly = products.filter((p) => Number(p.stock) > 0);
+    setAllProducts((prev) => (currentPage === 1 ? inStockOnly : [...prev, ...inStockOnly]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products]);
 
@@ -220,16 +221,18 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
             <ErrorState title="Couldn't load products" description={error} onRetry={handleRetry} />
           ) : loading && currentPage === 1 ? (
             <ProductGridSkeleton count={8} />
-          ) : allProducts.length > 0 ? (
+          ) : allProducts.filter((p) => Number(p.stock) > 0).length > 0 ? (
             category === "" ? (
               <div className="flex flex-col gap-12 text-left">
                 {Object.entries(
-                  allProducts.reduce((acc, product) => {
-                    const cat = product.category || 'Other';
-                    if (!acc[cat]) acc[cat] = [];
-                    acc[cat].push(product);
-                    return acc;
-                  }, {})
+                  allProducts
+                    .filter((p) => Number(p.stock) > 0)
+                    .reduce((acc, product) => {
+                      const cat = product.category || 'Other';
+                      if (!acc[cat]) acc[cat] = [];
+                      acc[cat].push(product);
+                      return acc;
+                    }, {})
                 ).sort(([catA], [catB]) => {
                   const indexA = CATEGORIES.indexOf(catA);
                   const indexB = CATEGORIES.indexOf(catB);
@@ -250,9 +253,11 @@ const ProductCatalog = ({ keyword = null, categoryFromUrl = "" }) => {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-                {allProducts.map((product) => (
-                  <Product key={product._id} product={product} />
-                ))}
+                {allProducts
+                  .filter((p) => Number(p.stock) > 0)
+                  .map((product) => (
+                    <Product key={product._id} product={product} />
+                  ))}
               </div>
             )
           ) : (

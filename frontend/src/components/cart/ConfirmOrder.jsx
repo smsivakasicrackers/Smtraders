@@ -22,6 +22,12 @@ export default function ConfirmOrder() {
       navigate("/Mycart", { replace: true });
       return;
     }
+    const outOfStockItem = cartItems.find((item) => (item.stock || 0) <= 0);
+    if (outOfStockItem) {
+      toast.error(`"${outOfStockItem.name}" is out of stock. Please remove it from your list.`);
+      navigate("/Mycart", { replace: true });
+      return;
+    }
     if (itemsPrice < MIN_ORDER_AMOUNT) {
       toast.error(`Minimum order amount is ₹${MIN_ORDER_AMOUNT}.`);
       navigate("/Mycart", { replace: true });
@@ -32,6 +38,12 @@ export default function ConfirmOrder() {
   const totalPrice = (Number(itemsPrice) + Number(taxPrice)).toFixed(2);
 
   const processPayment = () => {
+    const outOfStockItem = cartItems.find((item) => (item.stock || 0) <= 0);
+    if (outOfStockItem) {
+      toast.error(`"${outOfStockItem.name}" is out of stock. Please remove it from your list.`);
+      navigate("/Mycart", { replace: true });
+      return;
+    }
     const data = { itemsPrice, taxPrice, totalPrice };
     sessionStorage.setItem("orderInfo", JSON.stringify(data));
     navigate("/payment");
